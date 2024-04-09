@@ -18,9 +18,9 @@ import AnonymizePlugin from '@fourlights/mapper-plugin-anonymize'
 
 const user = { firstName: 'John', lastName: 'Doe', birthday: new Date(1990, 1, 1) }
 const config: MapperConfig<typeof user> = {
-  name: { value: (data) => `${data.firstName} ${data.lastName}`, classification: 'pii' },
-  birthday: { value: (data) => data.birthday, classification: 'pii', anonymize: 'redact' },
-  age: (data) => differenceInYears(new Date(), data.birthday),
+	name: { value: (data) => `${data.firstName} ${data.lastName}`, classification: 'pii' },
+	birthday: { value: (data) => data.birthday, classification: 'pii', anonymize: 'redact' },
+	age: (data) => differenceInYears(new Date(), data.birthday),
 }
 
 console.log(mapper.map(user, config, { plugins: [new AnonymizePlugin()] }))
@@ -30,13 +30,14 @@ This will output (well, a random name obviously):
 
 ```json5
 {
-  name: 'John Doe',
-  birthday: 'REDACTED',
-  age: 33,
+	name: 'John Doe',
+	birthday: 'REDACTED',
+	age: 33,
 }
 ```
 
 ## Configuration
+
 Import the package in your TypeScript or JavaScript file:
 
 ```typescript

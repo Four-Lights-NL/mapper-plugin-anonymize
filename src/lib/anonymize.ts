@@ -28,7 +28,8 @@ class AnonymizePlugin implements MapperPlugin {
 			const options = property.options as AnonymizePluginPropertyOptions
 			return (
 				options.anonymize === 'redact' ||
-				(options.anonymize === undefined && this._options[`${options.classification!}Data`] === 'redact')
+				(options.anonymize === undefined &&
+					this._options[`${options.classification!}Data`] === 'redact')
 			)
 		})
 
@@ -37,7 +38,8 @@ class AnonymizePlugin implements MapperPlugin {
 			const options = property.options as AnonymizePluginPropertyOptions
 			return (
 				options.anonymize === 'fake' ||
-				(options.anonymize === undefined && this._options[`${options.classification!}Data`] === 'fake')
+				(options.anonymize === undefined &&
+					this._options[`${options.classification!}Data`] === 'fake')
 			)
 		})
 

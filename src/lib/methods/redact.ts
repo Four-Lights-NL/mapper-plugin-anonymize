@@ -3,16 +3,17 @@ import Fuse from 'fuse.js'
 import type { AnonymizeMethod } from '../types'
 
 class Redact<T> implements AnonymizeMethod<T> {
-  private readonly fuse: Fuse<{ name: string; method: any }>
+	private readonly fuse: Fuse<{ name: string; method: any }>
 
 	constructor() {
-    const redactMethodsMap = [
-      { name: 'email', method: () => '*****@*****.com' }
-    ] as { name: string; method: MapperFn<T> }[]
+		const redactMethodsMap = [{ name: 'email', method: () => '*****@*****.com' }] as {
+			name: string
+			method: MapperFn<T>
+		}[]
 
-    /* Initialize fuzzy search */
-    this.fuse = new Fuse(redactMethodsMap, { threshold: 0.3, keys: ['name'] })
-  }
+		/* Initialize fuzzy search */
+		this.fuse = new Fuse(redactMethodsMap, { threshold: 0.3, keys: ['name'] })
+	}
 
 	generate(key: string, property: MapperProperty<T>) {
 		const result = this.fuse.search(key)

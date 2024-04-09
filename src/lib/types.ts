@@ -4,7 +4,7 @@ export type DataTaxonomy = 'pii' | 'sensitive'
 export type AnonymizeMethods = 'fake' | 'redact' | 'none'
 
 export type AnonymizeMethod<T> = {
-  generate: (key: string, property: MapperProperty<T>) => MapperFn<T>
+	generate: (key: string, property: MapperProperty<T>) => MapperFn<T>
 }
 
 export type AnonymizePluginOptions = {

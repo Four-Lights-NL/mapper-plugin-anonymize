@@ -2,7 +2,7 @@
 module.exports = {
 	preset: 'ts-jest',
 	testEnvironment: 'node',
-  moduleNameMapper: {
-    '^#package\\.json$': '<rootDir>/package.json',
-  },
+	moduleNameMapper: {
+		'^#package\\.json$': '<rootDir>/package.json',
+	},
 }
