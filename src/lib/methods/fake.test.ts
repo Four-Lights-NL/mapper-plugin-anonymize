@@ -24,20 +24,18 @@ describe(packageName, () => {
 		})
 
 		it('should generate a fake email', () => {
-			const fake = new Fake(1) // Seed is fixated to make tests deterministic
 			const email = fake.generate('email', props.email)()
-			expect(email).toBe('Winifred.Watsica99@gmail.com')
+			expect(email).toBe('Winifred.Watsica@gmail.com')
 		})
 
 		it('should fuzzy match properties', () => {
-			const fake = new Fake(1) // Seed is fixated to make tests deterministic
 			const email = fake.generate('mail', props.email)()
-			expect(email).toBe('Winifred.Watsica99@gmail.com')
+			expect(email).toBe('Winifred.Watsica@gmail.com')
 		})
 
 		it('should generate a random word for unmatched properties', () => {
 			const result = fake.generate('other-property', { value: () => '12345678' })()
-			expect(result).toBe('creative')
+			expect(result).toBe('enormous')
 		})
 	})
 })

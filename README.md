@@ -12,33 +12,37 @@ npm install @fourlights/mapper-plugin-anonymize
 
 ## Usage
 
+In your mapper config, you supply data classification on each property that you want to anonymize. The plugin will then anonymize the data based on the classification.
+By default, the plugin will fake `PII` data and redact `sensitive` data. But everything is configurable, both on the plugin level or on a property level.
+
 ```typescript
-import mapper from '@fourlights/mapper'
+import type { MapperConfig } from '@fourlights/mapper'
+import { map } from '@fourlights/mapper'
+
+import type { AnonymizePluginPropertyOptions } from '@fourlights/mapper-plugin-anonymize'
 import AnonymizePlugin from '@fourlights/mapper-plugin-anonymize'
 
 const user = { firstName: 'John', lastName: 'Doe', birthday: new Date(1990, 1, 1) }
-const config: MapperConfig<typeof user> = {
-	name: { value: (data) => `${data.firstName} ${data.lastName}`, classification: 'pii' },
-	birthday: { value: (data) => data.birthday, classification: 'pii', anonymize: 'redact' },
-	age: (data) => differenceInYears(new Date(), data.birthday),
+const config: MapperConfig<typeof user, AnonymizePluginPropertyOptions> = {
+  firstName: { value: (data) => data.firstName, options: { classification: 'pii' } },
+  lastName: { value: (data) => data.lastName, options: { classification: 'pii', anonymize: 'redact' } },
 }
 
-console.log(mapper.map(user, config, { plugins: [new AnonymizePlugin()] }))
+console.log(map(user, config, { plugins: [new AnonymizePlugin( { seed: 69 })] }))   // NOTE: The seed to get deterministic results, for example purposes
 ```
 
-This will output (well, a random name obviously):
+This will output:
 
 ```json5
 {
-	name: 'Some other name',
-	birthday: '********',
-	age: 33,
+  firstName: 'Vicki',
+  lastName: '*****',
 }
 ```
 
 ## Configuration
 
-TODO
+To Do. For now, please refer to the [source code](./src/lib/index.ts) for the available options.
 
 ## Contributing
 

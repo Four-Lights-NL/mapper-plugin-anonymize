@@ -2,6 +2,12 @@ import Fuse from 'fuse.js'
 import { en, Faker } from '@faker-js/faker'
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
 import type { AnonymizeMethod } from '../types'
+import getMethodOptions from '../utils/getMethodOptions'
+
+export type FakeMethodOptions = {
+	seed?: number
+	key?: string
+}
 
 const getMethods = <T>(obj: T) =>
 	Object.getOwnPropertyNames(Object.getPrototypeOf(obj))
@@ -20,6 +26,10 @@ class Fake<T> implements AnonymizeMethod<T> {
 	}
 
 	generate(key: string, property: MapperProperty<T>) {
+		const options = getMethodOptions<FakeMethodOptions>(property)
+		if (options?.seed) this.faker.seed(options.seed)
+		if (options?.key) key = options.key
+
 		const result = this.fuse.search(key)
 		if (result.length === 0) {
 			console.log(
@@ -53,11 +63,12 @@ class Fake<T> implements AnonymizeMethod<T> {
 		const sex = this.faker.person.sexType()
 		const firstName = this.faker.person.firstName(sex)
 		const lastName = this.faker.person.lastName()
+		const fullName = this.faker.person.fullName({ firstName, lastName })
 		const email = this.faker.internet.email({ firstName, lastName })
 
 		/* Combine all methods */
 		const fakerMethodsMap = Object.entries({
-			...this.fakerModuleMethodsMap('person', { firstName, lastName, sex }),
+			...this.fakerModuleMethodsMap('person', { firstName, lastName, fullName, sex }),
 			...this.fakerModuleMethodsMap('internet', { email }),
 			...this.fakerModuleMethodsMap('location'),
 			...this.fakerModuleMethodsMap('phone'),
