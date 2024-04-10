@@ -24,19 +24,22 @@ import AnonymizePlugin from '@fourlights/mapper-plugin-anonymize'
 
 const user = { firstName: 'John', lastName: 'Doe', birthday: new Date(1990, 1, 1) }
 const config: MapperConfig<typeof user, AnonymizePluginPropertyOptions> = {
-  firstName: { value: (data) => data.firstName, options: { classification: 'pii' } },
-  lastName: { value: (data) => data.lastName, options: { classification: 'pii', anonymize: 'redact' } },
+	firstName: { value: (data) => data.firstName, options: { classification: 'pii' } },
+	lastName: {
+		value: (data) => data.lastName,
+		options: { classification: 'pii', anonymize: 'redact' },
+	},
 }
 
-console.log(map(user, config, { plugins: [new AnonymizePlugin( { seed: 69 })] }))   // NOTE: The seed to get deterministic results, for example purposes
+console.log(map(user, config, { plugins: [new AnonymizePlugin({ seed: 69 })] })) // NOTE: The seed to get deterministic results, for example purposes
 ```
 
 This will output:
 
 ```json5
 {
-  firstName: 'Vicki',
-  lastName: '*****',
+	firstName: 'Vicki',
+	lastName: '*****',
 }
 ```
 
