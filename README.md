@@ -45,7 +45,38 @@ This will output:
 
 ## Configuration
 
-To Do. For now, please refer to the [source code](./src/lib/index.ts) for the available options.
+The plugin can be configured with the following options:
+
+- `seed` (number): The seed to use for the random generator. This is useful for deterministic results. Default: `undefined`.
+- `piiData` ('fake' | 'redact' | 'none' | `(key: string, property: MapperProperty<T>) => MapperFn<T>`): The method to use for anonymizing PII data. Default: `'fake'`. `fake` and `redact` are built-in methods. You can also supply your own method factory.
+- `sensitiveData` ('fake' | 'redact' | 'none' | `(key: string, property: MapperProperty<T>) => MapperFn<T>`): The method to use for anonymizing sensitive data. Default: `'redact'`. `fake` and `redact` are built-in methods. You can also supply your own method factory.
+
+These options can also be set (or overridden) on a property level by supplying the `options.anonymize` property.
+Note that `piiData` and `sensitiveData` also accept an object to override the built-in method configuration (see next example), which can also be provided on a property level.
+
+```typescript
+const config = {
+	firstName: {
+		value: (data) => data.firstName,
+		options: {
+			classification: 'pii',
+			// Use a built-in method
+			anonymize: 'fake', // 'redact' | 'none'
+		},
+	},
+	lastName: {
+		value: (data) => data.lastName,
+		options: {
+			classification: 'pii',
+			/* You can use an object to override the built-in method configuration */
+			anonymize: {
+				method: 'redact',
+				options: { redactValue: 'X' }, // e.g. 'XXXXXX' instead of '******'
+			},
+		},
+	},
+}
+```
 
 ## Contributing
 
