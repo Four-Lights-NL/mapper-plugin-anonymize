@@ -1,8 +1,8 @@
-import Fuse from 'fuse.js'
 import { en, Faker } from '@faker-js/faker'
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
 import type { AnonymizeMethod } from '../types'
 import getMethodOptions from '../utils/getMethodOptions'
+import fuzzysort from 'fuzzysort'
 
 export type FakeMethodOptions = {
 	seed?: number
@@ -15,14 +15,14 @@ const getMethods = <T>(obj: T) =>
 		.map((name) => name as keyof T)
 
 class Fake<T> implements AnonymizeMethod<T> {
-	private readonly fuse: Fuse<{ name: string; method: any }>
+	private readonly specialFakerMethods: { name: string; method: any }[] = []
 	private readonly faker: Faker
 
 	constructor(seed?: number) {
 		this.faker = new Faker({ locale: [en] })
 		if (seed) this.faker.seed(seed)
 
-		this.fuse = new Fuse(this.fakerMethodsMap(), { threshold: 0.3, keys: ['name'] })
+		this.specialFakerMethods = this.fakerMethodsMap()
 	}
 
 	generate(key: string, property: MapperProperty<T>) {
@@ -30,14 +30,14 @@ class Fake<T> implements AnonymizeMethod<T> {
 		if (options?.seed) this.faker.seed(options.seed)
 		if (options?.key) key = options.key
 
-		const result = this.fuse.search(key)
+		const result = fuzzysort.go(key, this.specialFakerMethods, { key: 'name' })
 		if (result.length === 0) {
 			console.log(
 				`No match found for key \`${key}\`. Consider adding it. Using random adjective as fallback`,
 			)
 			return (d: T) => this.faker.word.adjective({ length: property.value(d).length })
 		}
-		return result[0].item.method
+		return result[0].obj.method
 	}
 
 	private fakerModuleMethodsMap<T>(
