@@ -1,28 +1,28 @@
 import type { MapperConfig, MapperPlugin, MapperProperty } from '@fourlights/mapper'
 import type {
-	AnonymizeMethodDefinition,
+	AnonymizeMethod,
 	AnonymizeMethodFn,
 	AnonymizeMethodOptions,
 	AnonymizeMethods,
-	AnonymizePluginOptions,
-	AnonymizePluginPropertyOptions,
+	AnonymizeOptions,
+	AnonymizePropertyOptions,
 } from './types'
 import defu from 'defu'
 import Fake from './methods/fake'
 import Redact from './methods/redact'
 
 class AnonymizePlugin implements MapperPlugin {
-	private readonly _options: AnonymizePluginOptions = {
+	private readonly _options: AnonymizeOptions = {
 		piiData: 'fake',
 		sensitiveData: 'redact',
 		seed: undefined,
 	}
 
-	constructor(options?: AnonymizePluginOptions) {
+	constructor(options?: AnonymizeOptions) {
 		this._options = defu(options, this._options)
 	}
 
-	private getMethod(options: AnonymizeMethodDefinition) {
+	private getMethod(options: AnonymizeMethod) {
 		return typeof options === 'object' ? (options as AnonymizeMethodOptions).method : options
 	}
 
@@ -33,7 +33,7 @@ class AnonymizePlugin implements MapperPlugin {
 		}
 	}
 
-	private isFunction(options: AnonymizePluginPropertyOptions) {
+	private isFunction(options: AnonymizePropertyOptions) {
 		return (
 			typeof options.anonymize === 'function' ||
 			(options.anonymize === undefined &&
@@ -41,7 +41,7 @@ class AnonymizePlugin implements MapperPlugin {
 		)
 	}
 
-	private isMethod(options: AnonymizePluginPropertyOptions, method: AnonymizeMethods) {
+	private isMethod(options: AnonymizePropertyOptions, method: AnonymizeMethods) {
 		const matchesMethod =
 			options.anonymize !== undefined && this.getMethod(options.anonymize!) === method
 		const useFallbackMethod =
@@ -57,14 +57,14 @@ class AnonymizePlugin implements MapperPlugin {
 		const propsWithClassification = Object.keys(config).filter((key) => {
 			const property = config[key]
 			if (!property || typeof property === 'function') return false // Only handle long-form properties
-			const options = property.options as AnonymizePluginPropertyOptions
+			const options = property.options as AnonymizePropertyOptions
 			return !!options.classification
 		})
 
 		// Determine which properties to redact
 		const propsToRedact = propsWithClassification.filter((key) => {
 			const property = config[key] as MapperProperty<T>
-			const options = property.options as AnonymizePluginPropertyOptions
+			const options = property.options as AnonymizePropertyOptions
 			return this.isMethod(options, 'redact')
 		})
 
@@ -80,7 +80,7 @@ class AnonymizePlugin implements MapperPlugin {
 		// Determine which properties to fake
 		const propsToFake = propsWithClassification.filter((key) => {
 			const property = config[key] as MapperProperty<T>
-			const options = property.options as AnonymizePluginPropertyOptions
+			const options = property.options as AnonymizePropertyOptions
 			return this.isMethod(options, 'fake')
 		})
 
@@ -98,7 +98,7 @@ class AnonymizePlugin implements MapperPlugin {
 		// Determine properties with custom anonymization functions
 		const propsWithCustomAnonymization = propsWithClassification.filter((key) => {
 			const property = config[key] as MapperProperty<T>
-			const options = property.options as AnonymizePluginPropertyOptions
+			const options = property.options as AnonymizePropertyOptions
 			return this.isFunction(options)
 		})
 
@@ -106,7 +106,7 @@ class AnonymizePlugin implements MapperPlugin {
 		if (propsWithCustomAnonymization.length > 0) {
 			for (const key of propsWithCustomAnonymization) {
 				const property = config[key] as MapperProperty<T>
-				const options = property.options as AnonymizePluginPropertyOptions
+				const options = property.options as AnonymizePropertyOptions
 				const anonymizeFn =
 					typeof options.anonymize === 'function'
 						? options.anonymize

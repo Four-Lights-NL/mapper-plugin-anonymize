@@ -1,3 +1,4 @@
 import examples from './examples'
 
-examples.map((runExample) => runExample())
+const seed = 69
+examples.map((runExample) => runExample(seed))

@@ -1,8 +1,9 @@
 import { name as packageName } from '#package.json'
-import { map, MapperConfig } from '@fourlights/mapper'
+import type { MapperConfig } from '@fourlights/mapper'
+import { map } from '@fourlights/mapper'
 import AnonymizePlugin from './anonymize'
-import { AnonymizePluginPropertyOptions } from './types'
-import { FakeMethodOptions } from './methods/fake'
+import type { AnonymizePropertyOptions } from './types'
+import type { FakeMethodOptions } from './methods/fake'
 
 describe(packageName, () => {
 	it('should not anonymize properties without classification', () => {
@@ -20,7 +21,7 @@ describe(packageName, () => {
 		const plugin = new AnonymizePlugin({ seed: 1, piiData: 'redact' })
 		const input = { email: 'exposed@example.com' }
 		const expected = { email: '*****@*****.com' }
-		const config: MapperConfig<typeof input, AnonymizePluginPropertyOptions> = {
+		const config: MapperConfig<typeof input, AnonymizePropertyOptions> = {
 			email: {
 				value: (d) => d.email,
 				options: { classification: 'pii' },
@@ -34,7 +35,7 @@ describe(packageName, () => {
 		const plugin = new AnonymizePlugin({ seed: 1, piiData: 'fake' })
 		const input = { email: 'exposed@example.com' }
 		const expected = { email: 'Winifred.Watsica@gmail.com' }
-		const config: MapperConfig<typeof input, AnonymizePluginPropertyOptions> = {
+		const config: MapperConfig<typeof input, AnonymizePropertyOptions> = {
 			email: {
 				value: (d) => d.email,
 				options: { classification: 'pii' },
@@ -48,7 +49,7 @@ describe(packageName, () => {
 		const plugin = new AnonymizePlugin({ seed: 1 })
 		const input = { firstName: 'Jane', lastName: 'Doe' }
 		const expected = { name: 'Winifred Watsica' }
-		const config: MapperConfig<typeof input, AnonymizePluginPropertyOptions> = {
+		const config: MapperConfig<typeof input, AnonymizePropertyOptions> = {
 			name: {
 				value: (d) => `${d.firstName} ${d.lastName}`,
 				options: {

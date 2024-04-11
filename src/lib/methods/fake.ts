@@ -1,6 +1,6 @@
 import { en, Faker } from '@faker-js/faker'
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
-import type { AnonymizeMethod } from '../types'
+import type { AnonymizeMethodFactory } from '../types'
 import getMethodOptions from '../utils/getMethodOptions'
 import fuzzysort from 'fuzzysort'
 import makeSeed from '../utils/makeSeed'
@@ -15,7 +15,7 @@ const getMethods = <T>(obj: T) =>
 		.filter((name) => name !== 'constructor' && typeof obj[name as keyof T] === 'function')
 		.map((name) => name as keyof T)
 
-class Fake<T> implements AnonymizeMethod<T> {
+class Fake<T> implements AnonymizeMethodFactory<T> {
 	private readonly specialFakerMethods: { name: string; method: any }[] = []
 	private readonly faker: Faker
 	private readonly minMatchKeyLength = 2
