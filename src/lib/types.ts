@@ -22,7 +22,7 @@ export type AnonymizeMethodOptions =
 	| { method: AnonymizeMethodFn<any>; options?: Record<string, any> }
 
 export type AnonymizePluginOptions = {
-	seed?: number
+	seed?: number | string
 	piiData?: AnonymizeMethodDefinition
 	sensitiveData?: AnonymizeMethodDefinition
 }

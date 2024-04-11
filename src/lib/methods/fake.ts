@@ -3,9 +3,10 @@ import type { MapperFn, MapperProperty } from '@fourlights/mapper'
 import type { AnonymizeMethod } from '../types'
 import getMethodOptions from '../utils/getMethodOptions'
 import fuzzysort from 'fuzzysort'
+import makeSeed from '../utils/makeSeed'
 
 export type FakeMethodOptions = {
-	seed?: number
+	seed?: number | string
 	key?: string
 }
 
@@ -18,16 +19,16 @@ class Fake<T> implements AnonymizeMethod<T> {
 	private readonly specialFakerMethods: { name: string; method: any }[] = []
 	private readonly faker: Faker
 
-	constructor(seed?: number) {
+	constructor(seed?: number | string) {
 		this.faker = new Faker({ locale: [en] })
-		if (seed) this.faker.seed(seed)
+		if (seed) this.faker.seed(makeSeed(seed))
 
 		this.specialFakerMethods = this.fakerMethodsMap()
 	}
 
 	generate(key: string, property: MapperProperty<T>) {
 		const options = getMethodOptions<FakeMethodOptions>(property)
-		if (options?.seed) this.faker.seed(options.seed)
+		if (options?.seed) this.faker.seed(makeSeed(options.seed))
 		if (options?.key) key = options.key
 
 		const result = fuzzysort.go(key, this.specialFakerMethods, { key: 'name' })
