@@ -4,12 +4,13 @@
 		"module": "CommonJS",
 		"outDir": "dist",
 		"esModuleInterop": true,
+    "baseUrl": ".",
 		"skipLibCheck": true,
 		"moduleResolution": "Node",
 		"resolveJsonModule": true,
 		"allowSyntheticDefaultImports": true,
 		"forceConsistentCasingInFileNames": true,
-		"strict": true
+		"strict": true,
 	},
-	"include": ["src/**/*"]
+	"include": ["src/**/*"],
 }
