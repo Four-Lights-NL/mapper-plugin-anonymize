@@ -1,39 +1,40 @@
 import type { MapperConfig, MapperPlugin, MapperProperty } from '@fourlights/mapper'
 import type {
-	AnonymizeMethodDefinition,
-	AnonymizeMethodFn,
+	AnonymizeMethod,
 	AnonymizeMethodOptions,
 	AnonymizeMethods,
-	AnonymizePluginOptions,
-	AnonymizePluginPropertyOptions,
+	AnonymizeOptions,
+	AnonymizePropertyFn,
+	AnonymizePropertyOptions,
 } from './types'
 import defu from 'defu'
 import Fake from './methods/fake'
 import Redact from './methods/redact'
 
 class AnonymizePlugin implements MapperPlugin {
-	private readonly _options: AnonymizePluginOptions = {
+	private readonly _options: AnonymizeOptions = {
 		piiData: 'fake',
 		sensitiveData: 'redact',
 		seed: undefined,
+		traverse: true,
 	}
 
-	constructor(options?: AnonymizePluginOptions) {
+	constructor(options?: AnonymizeOptions) {
 		this._options = defu(options, this._options)
 	}
 
-	private getMethod(options: AnonymizeMethodDefinition) {
+	private unwrap(options: AnonymizeMethod) {
 		return typeof options === 'object' ? (options as AnonymizeMethodOptions).method : options
 	}
 
 	private get fallbackAnonymization() {
 		return {
-			pii: this.getMethod(this._options['piiData']!),
-			sensitive: this.getMethod(this._options['sensitiveData']!),
+			pii: this.unwrap(this._options['piiData']!),
+			sensitive: this.unwrap(this._options['sensitiveData']!),
 		}
 	}
 
-	private isFunction(options: AnonymizePluginPropertyOptions) {
+	private isFunction(options: AnonymizePropertyOptions) {
 		return (
 			typeof options.anonymize === 'function' ||
 			(options.anonymize === undefined &&
@@ -41,77 +42,73 @@ class AnonymizePlugin implements MapperPlugin {
 		)
 	}
 
-	private isMethod(options: AnonymizePluginPropertyOptions, method: AnonymizeMethods) {
+	private isMethod(options: AnonymizePropertyOptions, method: AnonymizeMethods) {
 		const matchesMethod =
-			options.anonymize !== undefined && this.getMethod(options.anonymize!) === method
+			options.anonymize !== undefined && this.unwrap(options.anonymize!) === method
 		const useFallbackMethod =
 			options.anonymize === undefined &&
 			this.fallbackAnonymization[options.classification!] === method
 		return matchesMethod || useFallbackMethod
 	}
 
-	config<T>(config: MapperConfig<T>): MapperConfig<T> {
+	config<T>(config: MapperConfig<T, AnonymizePropertyOptions>): MapperConfig<T> {
 		const anonymizedConfig: typeof config = {} // Holds the mapper configuration with anonymized properties
 
 		// Find all properties with a data classification
-		const propsWithClassification = Object.keys(config).filter((key) => {
-			const property = config[key]
-			if (!property || typeof property === 'function') return false // Only handle long-form properties
-			const options = property.options as AnonymizePluginPropertyOptions
-			return !!options.classification
-		})
+		const toAnonymize = Object.keys(config)
+			.filter((key) => {
+				const property = config[key]
+				if (!property || typeof property === 'function' || !property.options) return false // Only handle long-form properties
+				return !!property.options.classification || !!property.options.anonymize
+			})
+			.reduce(
+				(acc, key) => {
+					const property = config[key] as MapperProperty<T, AnonymizePropertyOptions>
+					if (this.isMethod(property.options!, 'redact')) acc.redact[key] = property
+					else if (this.isMethod(property.options!, 'fake')) acc.fake[key] = property
+					else if (this.isFunction(property.options!)) acc.custom[key] = property
+					return acc
+				},
+				{ redact: {}, fake: {}, custom: {} } as Record<
+					'redact' | 'fake' | 'custom',
+					Record<string, MapperProperty<T, AnonymizePropertyOptions>>
+				>,
+			)
 
-		// Determine which properties to redact
-		const propsToRedact = propsWithClassification.filter((key) => {
-			const property = config[key] as MapperProperty<T>
-			const options = property.options as AnonymizePluginPropertyOptions
-			return this.isMethod(options, 'redact')
-		})
-
-		// Redact properties
-		if (propsToRedact.length > 0) {
+		// Anonymize using redact
+		if (toAnonymize.redact) {
 			const redact = new Redact<T>()
-			for (const key of propsToRedact) {
-				const property = config[key] as MapperProperty<T>
-				anonymizedConfig[key] = { ...property, value: redact.generate(key, property) }
+			for (const [key, property] of Object.entries(toAnonymize.redact)) {
+				anonymizedConfig[key] = {
+					...property,
+					...redact.anonymize(key, property),
+				}
 			}
 		}
 
-		// Determine which properties to fake
-		const propsToFake = propsWithClassification.filter((key) => {
-			const property = config[key] as MapperProperty<T>
-			const options = property.options as AnonymizePluginPropertyOptions
-			return this.isMethod(options, 'fake')
-		})
-
-		// Fake properties
-		if (propsToFake.length > 0) {
-			const { seed } = this._options
+		// Anonymize using fake
+		if (toAnonymize.fake) {
+			const { seed, traverse } = this._options
 			const fake = new Fake<T>(seed)
 
-			for (const key of propsToFake) {
-				const property = config[key] as MapperProperty<T>
-				anonymizedConfig[key] = { ...property, value: fake.generate(key, property) }
+			for (const [key, property] of Object.entries(toAnonymize.fake)) {
+				anonymizedConfig[key] = {
+					...property,
+					...fake.anonymize(key, property),
+				}
 			}
 		}
 
-		// Determine properties with custom anonymization functions
-		const propsWithCustomAnonymization = propsWithClassification.filter((key) => {
-			const property = config[key] as MapperProperty<T>
-			const options = property.options as AnonymizePluginPropertyOptions
-			return this.isFunction(options)
-		})
-
-		// Apply custom anonymization functions
-		if (propsWithCustomAnonymization.length > 0) {
-			for (const key of propsWithCustomAnonymization) {
-				const property = config[key] as MapperProperty<T>
-				const options = property.options as AnonymizePluginPropertyOptions
-				const anonymizeFn =
-					typeof options.anonymize === 'function'
-						? options.anonymize
-						: (this.fallbackAnonymization[options.classification!] as AnonymizeMethodFn<T>)
-				anonymizedConfig[key] = { ...property, value: anonymizeFn(key, property) }
+		// Anonymize using custom function
+		if (toAnonymize.custom) {
+			for (const [key, property] of Object.entries(toAnonymize.custom)) {
+				const anonymize =
+					typeof property.options!.anonymize === 'function'
+						? property.options!.anonymize
+						: (this.fallbackAnonymization[
+								property.options!.classification!
+							] as AnonymizePropertyFn<T>)
+				anonymizedConfig[key] = { ...property, ...anonymize(key, property) }
 			}
 		}
 

@@ -4,7 +4,7 @@ import AnonymizePlugin, { withClassification } from '@fourlights/mapper-plugin-a
 
 import { user } from './input'
 
-export default (seed = 69) => {
+export default (seed?: number | string) => {
 	// First, we define a MapperConfig for the user object with short-form syntax
 	const config: MapperConfig<typeof user, {}> = {
 		firstName: (d) => d.firstName,
