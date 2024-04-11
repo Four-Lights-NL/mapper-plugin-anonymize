@@ -3,12 +3,13 @@
 	"description": "Playground for @fourlights/mapper-plugin-anonymize",
 	"main": "dist/index.js",
 	"scripts": {
+    "prestart": "cd ../ && npm install && npm run build && cd -",
 		"start": "tsc && node dist/index.js",
 		"build": "tsc"
 	},
 	"dependencies": {
 		"@fourlights/mapper": "^1.1.1",
-		"@fourlights/mapper-plugin-anonymize": "file:../",
+    "@fourlights/mapper-plugin-anonymize": "file:../",
 		"date-fns": "^3.6.0"
 	},
 	"devDependencies": {
