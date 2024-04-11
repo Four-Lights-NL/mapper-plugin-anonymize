@@ -17,6 +17,7 @@ const getMethods = <T>(obj: T) =>
 class Fake<T> implements AnonymizeMethod<T> {
 	private readonly specialFakerMethods: { name: string; method: any }[] = []
 	private readonly faker: Faker
+	private readonly minMatchKeyLength = 2
 
 	constructor(seed?: number) {
 		this.faker = new Faker({ locale: [en] })
@@ -30,8 +31,11 @@ class Fake<T> implements AnonymizeMethod<T> {
 		if (options?.seed) this.faker.seed(options.seed)
 		if (options?.key) key = options.key
 
-		const result = fuzzysort.go(key, this.specialFakerMethods, { key: 'name' })
-		if (result.length === 0) {
+		const result = fuzzysort.go(key, this.specialFakerMethods, {
+			key: 'name',
+			limit: 1,
+		})
+		if (key.length < this.minMatchKeyLength || result.length === 0) {
 			console.log(
 				`No match found for key \`${key}\`. Consider adding it. Using random adjective as fallback`,
 			)
