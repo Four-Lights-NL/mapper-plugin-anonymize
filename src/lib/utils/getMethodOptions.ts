@@ -1,10 +1,10 @@
-import type { AnonymizeMethodDefinition, AnonymizePluginPropertyOptions } from '../types'
+import type { AnonymizeMethod, AnonymizePropertyOptions } from '../types'
 import type { MapperProperty } from '@fourlights/mapper'
 
-const getMethodOptions = <U>(property: MapperProperty<any>) => {
-	const propertyOptions = property.options as AnonymizePluginPropertyOptions
-	const method = propertyOptions?.anonymize as AnonymizeMethodDefinition
-	return typeof method === 'object' ? (method.options as U) : undefined
+const getMethodOptions = <T>(property: MapperProperty<any>) => {
+	const propertyOptions = property.options as AnonymizePropertyOptions
+	const method = propertyOptions?.anonymize as AnonymizeMethod
+	return typeof method === 'object' ? (method.options as T) : undefined
 }
 
 export default getMethodOptions
