@@ -19,6 +19,7 @@
 		"README.md"
 	],
 	"scripts": {
+		"pretest": "npm run build",
 		"release": "release-it",
 		"build": "tsup",
 		"lint": "oxlint",
