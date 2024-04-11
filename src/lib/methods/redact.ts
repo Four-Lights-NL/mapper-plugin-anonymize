@@ -13,6 +13,7 @@ class Redact<T> implements AnonymizeMethod<T> {
 		name: string
 		methodFactory: (replaceValue: string) => MapperFn<T>
 	}[] = []
+	private readonly minMatchKeyLength = 2
 
 	constructor() {
 		this.specialRedactMethods = [
@@ -27,8 +28,9 @@ class Redact<T> implements AnonymizeMethod<T> {
 	generate(key: string, property: MapperProperty<T>) {
 		const options = getMethodOptions<RedactMethodOptions>(property)
 		const replaceValue = options?.replaceValue || '*'
-		const result = fuzzysort.go(key, this.specialRedactMethods, { key: 'name' })
-		if (result.length === 0) return (d: T) => `${property.value(d)}`.replaceAll(/./g, replaceValue)
+		const result = fuzzysort.go(key, this.specialRedactMethods, { key: 'name', limit: 1 })
+		if (key.length < this.minMatchKeyLength || result.length === 0)
+			return (d: T) => `${property.value(d)}`.replaceAll(/./g, replaceValue)
 		return result[0].obj.methodFactory(replaceValue)
 	}
 }

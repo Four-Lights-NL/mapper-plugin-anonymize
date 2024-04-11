@@ -78,6 +78,28 @@ const config = {
 }
 ```
 
+#### Helper methods for augmenting your mapper config
+
+You can use the `withClassification` method to easily add (sparse) classifications to your (short and long-form) properties.
+
+```typescript
+import { withClassification } from '@fourlights/mapper-plugin-anonymize'
+
+const config = {
+	name: (d) => d.name,
+	birthday: (d) => d.birthday,
+	theme: (d) => d.theme,
+}
+
+map(
+	withClassification(config, {
+		firstName: 'pii',
+		birthday: 'sensitive',
+	}),
+	{ plugins: [new AnonymizePlugin()] },
+)
+```
+
 ## Contributing
 
 Contributions are welcome. Please open an issue or submit a pull request on [GitHub](https://github.com/Four-Lights-NL/mapper-plugin-anonymize).
