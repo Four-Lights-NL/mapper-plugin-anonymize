@@ -3,5 +3,11 @@
 	"singleQuote": true,
 	"semi": false,
 	"trailingComma": "all",
-	"printWidth": 100
+	"printWidth": 100,
+  "overrides": [
+    {
+      "files": [".prettierrc", ".lintstagedrc", ".commitlintrc"],
+      "options": { "parser": "json" }
+    }
+  ]
 }
