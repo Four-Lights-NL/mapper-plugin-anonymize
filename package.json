@@ -14,13 +14,10 @@
 			"require": "./dist/index.cjs"
 		}
 	},
-	"files": [
-		"dist",
-		"README.md"
-	],
+	"files": ["dist", "README.md"],
 	"scripts": {
 		"release": "release-it",
-    "prepare": "node .husky/install.mjs",
+		"prepare": "node .husky/install.mjs",
 		"build": "tsup",
 		"lint": "oxlint",
 		"lint:fix": "oxlint --fix",
@@ -43,19 +40,12 @@
 		"url": "https://github.com/Four-Lights-NL/mapper-plugin-anonymize/issues"
 	},
 	"license": "MIT",
-	"keywords": [
-		"plugin",
-		"mapper",
-		"anonymize",
-		"anonymization",
-		"faker",
-		"redact",
-		"redaction"
-	],
+	"keywords": ["plugin", "mapper", "anonymize", "anonymization", "faker", "redact", "redaction"],
 	"peerDependencies": {
 		"@fourlights/mapper": "^1.1.2"
 	},
 	"devDependencies": {
+		"@commitlint/config-conventional": "^19.1.0",
 		"@fourlights/mapper": "^1.1.2",
 		"@release-it/conventional-changelog": "^8.0.1",
 		"@types/jest": "^29.5.12",
