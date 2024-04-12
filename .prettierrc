@@ -6,8 +6,12 @@
 	"printWidth": 100,
 	"overrides": [
 		{
-			"files": [".prettierrc", ".lintstagedrc", ".commitlintrc"],
+			"files": [".prettierrc", ".lintstagedrc", ".commitlintrc", "*.json"],
 			"options": { "parser": "json" }
-		}
-	]
+		},
+    {
+      "files": ["*.md", "*.mdx"],
+      "options": { "parser": "markdown" }
+    }
+  ]
 }
