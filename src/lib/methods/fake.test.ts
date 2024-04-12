@@ -15,26 +15,26 @@ describe(packageName, () => {
 		}
 
 		it('should not be deterministic', () => {
-			const email1 = fake.generate('email', props.email)()
-			const email2 = new Fake().generate('email', props.email)()
-			const email3 = new Fake().generate('email', props.email)()
+			const email1 = fake.generate('email', props.email)({})
+			const email2 = new Fake().generate('email', props.email)({})
+			const email3 = new Fake().generate('email', props.email)({})
 
 			expect(email1).not.toBe(email2)
 			expect(email2).not.toBe(email3)
 		})
 
 		it('should generate a fake email', () => {
-			const email = fake.generate('email', props.email)()
+			const email = fake.generate('email', props.email)({})
 			expect(email).toBe('Winifred.Watsica@gmail.com')
 		})
 
 		it('should fuzzy match properties', () => {
-			const email = fake.generate('mail', props.email)()
+			const email = fake.generate('mail', props.email)({})
 			expect(email).toBe('Winifred.Watsica@gmail.com')
 		})
 
 		it('should generate a random word for unmatched properties', () => {
-			const result = fake.generate('other-property', { value: () => '12345678' })()
+			const result = fake.generate('other-property', { value: () => '12345678' })({})
 			expect(result).toBe('enormous')
 		})
 	})

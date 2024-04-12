@@ -1,13 +1,15 @@
 import { en, Faker } from '@faker-js/faker'
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
-import type { AnonymizeMethod } from '../types'
+import type { AnonymizeMethodFactory } from '../types'
 import getMethodOptions from '../utils/getMethodOptions'
 import fuzzysort from 'fuzzysort'
 import makeSeed from '../utils/makeSeed'
+import unwrapValue from '../utils/unwrapValue'
 
 export type FakeMethodOptions = {
 	seed?: number | string
 	key?: string
+	traverse?: boolean
 }
 
 const getMethods = <T>(obj: T) =>
@@ -15,7 +17,7 @@ const getMethods = <T>(obj: T) =>
 		.filter((name) => name !== 'constructor' && typeof obj[name as keyof T] === 'function')
 		.map((name) => name as keyof T)
 
-class Fake<T> implements AnonymizeMethod<T> {
+class Fake<T> implements AnonymizeMethodFactory<T> {
 	private readonly specialFakerMethods: { name: string; method: any }[] = []
 	private readonly faker: Faker
 	private readonly minMatchKeyLength = 2
@@ -25,24 +27,6 @@ class Fake<T> implements AnonymizeMethod<T> {
 		if (seed) this.faker.seed(makeSeed(seed))
 
 		this.specialFakerMethods = this.fakerMethodsMap()
-	}
-
-	generate(key: string, property: MapperProperty<T>) {
-		const options = getMethodOptions<FakeMethodOptions>(property)
-		if (options?.seed) this.faker.seed(makeSeed(options.seed))
-		if (options?.key) key = options.key
-
-		const result = fuzzysort.go(key, this.specialFakerMethods, {
-			key: 'name',
-			limit: 1,
-		})
-		if (key.length < this.minMatchKeyLength || result.length === 0) {
-			console.log(
-				`No match found for key \`${key}\`. Consider adding it. Using random adjective as fallback`,
-			)
-			return (d: T) => this.faker.word.adjective({ length: property.value(d).length })
-		}
-		return result[0].obj.method
 	}
 
 	private fakerModuleMethodsMap<T>(
@@ -83,6 +67,51 @@ class Fake<T> implements AnonymizeMethod<T> {
 		)
 
 		return fakerMethodsMap
+	}
+
+	private shouldTraverse(property: MapperProperty<T>) {
+		const options = getMethodOptions<FakeMethodOptions>(property)
+		return options?.traverse ?? true
+	}
+
+	anonymize(key: string, property: MapperProperty<T>) {
+		const anonymizedProperty: MapperProperty<T> = {
+			value: (data: T, _wrappedKey?: string, rowId?: string | number) => {
+				if (typeof data[key as keyof T] === 'object' && this.shouldTraverse(property))
+					return property.value(data, key, rowId)
+				return this.generate(key, property)(data, key, rowId)
+			},
+		}
+
+		return this.shouldTraverse(property)
+			? ({
+					...anonymizedProperty,
+					row: (row, parentKey, rowId) =>
+						this.generate(`${rowId!}`, property)(row, parentKey, rowId),
+				} as MapperProperty<T>)
+			: anonymizedProperty
+	}
+
+	generate(key: string, property: MapperProperty<T>) {
+		const options = getMethodOptions<FakeMethodOptions>(property)
+
+		if (options?.seed) this.faker.seed(makeSeed(options.seed))
+		if (options?.key) key = options.key
+
+		const result = fuzzysort.go(key, this.specialFakerMethods, {
+			key: 'name',
+			limit: 1,
+		})
+
+		if (result.length === 0) {
+			console.log(
+				`No match found for key \`${key}\`. Consider adding it. Using random adjective as fallback`,
+			)
+		}
+		return key.length < this.minMatchKeyLength || result.length === 0
+			? (d: T, _wrappedKey?: string, rowId?: string | number) =>
+					this.faker.word.adjective({ length: unwrapValue(property, d, rowId).length })
+			: (_: T) => result[0].obj.method()
 	}
 }
 

@@ -1,33 +1,34 @@
 import type { MapperFn, MapperProperty, MapperPropertyOptions } from '@fourlights/mapper'
 import type { FakeMethodOptions } from './methods/fake'
-import { RedactMethodOptions } from './methods/redact'
+import type { RedactMethodOptions } from './methods/redact'
 
 export type DataTaxonomy = 'pii' | 'sensitive'
 export type AnonymizeMethods = 'fake' | 'redact' | 'none'
 
-export type AnonymizeMethodFn<T> = (key: string, property: MapperProperty<T>) => MapperFn<T>
-export type AnonymizeMethod<T> = {
+export type AnonymizePropertyFn<T> = (
+	key: string,
+	property: MapperProperty<T>,
+) => MapperProperty<T, AnonymizePropertyOptions>
+
+export type AnonymizeMethodFactory<T> = {
+	anonymize: AnonymizePropertyFn<T>
 	generate: (key: string, property: MapperProperty<T>) => MapperFn<T>
 }
 
-// TODO: Rename these types so that they make more sense
-export type AnonymizeMethodDefinition =
-	| AnonymizeMethods
-	| AnonymizeMethodFn<any>
-	| AnonymizeMethodOptions
-
+export type AnonymizeMethod = AnonymizeMethods | AnonymizePropertyFn<any> | AnonymizeMethodOptions
 export type AnonymizeMethodOptions =
 	| { method: 'fake'; options?: FakeMethodOptions }
 	| { method: 'redact'; options?: RedactMethodOptions }
-	| { method: AnonymizeMethodFn<any>; options?: Record<string, any> }
+	| { method: AnonymizePropertyFn<any>; options?: Record<string, any> }
 
-export type AnonymizePluginOptions = {
+export type AnonymizeOptions = {
 	seed?: number | string
-	piiData?: AnonymizeMethodDefinition
-	sensitiveData?: AnonymizeMethodDefinition
+	piiData?: AnonymizeMethod
+	sensitiveData?: AnonymizeMethod
+	traverse?: boolean
 }
 
-export type AnonymizePluginPropertyOptions = MapperPropertyOptions & {
+export type AnonymizePropertyOptions = MapperPropertyOptions & {
 	classification?: DataTaxonomy
-	anonymize?: AnonymizeMethodDefinition
+	anonymize?: AnonymizeMethod
 }
