@@ -1,5 +1,18 @@
 
 
+## [1.1.0](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.0.1...v1.1.0) (2024-04-12)
+
+
+### Features
+
+* add `traverse` option to allow applying anonymization to objects ([129b168](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/129b168b53befe05ee6cb422c02a2403650bea67))
+
+
+### Bug Fixes
+
+* export `withClassification` from top-level ([0ec3b7a](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/0ec3b7a2a7b29e26637d82c709b255d1de02c355))
+* rename ambiguous exported types ([9d916b6](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/9d916b6fd137db8e8f1eb4240ea79d4e6faf6b19))
+
 ## [1.0.1](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.0.0...v1.0.1) (2024-04-11)
 
 
