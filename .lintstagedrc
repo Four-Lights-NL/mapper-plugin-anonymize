@@ -1,0 +1,6 @@
+{
+	"*.{ts,tsx,js,jsx,mjs}": ["prettier --write", "oxlint --fix"],
+	"*.{md,mdx}": ["prettier --write --parser markdown"],
+	"*.json": ["prettier --write --parser json"],
+	".*rc": ["prettier --write --parser json"]
+}

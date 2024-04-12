@@ -1,0 +1,4 @@
+#!/bin/sh
+# Specify config explicitly, to not use config from nested directories
+npx --yes lint-staged --config .lintstagedrc
+npm run test:fast

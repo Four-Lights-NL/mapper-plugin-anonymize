@@ -1,15 +1,12 @@
 import type { Config } from 'jest'
 
-const jestGlobals = {} as Record<string, any>
+const tsJestConfig = {} as Record<string, any>
 
 // Speedup tests, with disable type checking
 if (process.env.TEST_FAST) {
 	const RED_COLOR = '\x1b[31m'
-	console.warn(RED_COLOR, 'TESTS DO NOT CHECK A TYPES!\n\n')
-
-	jestGlobals['ts-jest'] = {
-		isolatedModules: true,
-	}
+	console.warn(RED_COLOR, 'Running FAST tests without type checking\n\n')
+	tsJestConfig.isolatedModules = true
 }
 
 const config: Config = {
@@ -19,10 +16,9 @@ const config: Config = {
 		'^#package\\.json$': '<rootDir>/package.json',
 	},
 	transform: {
-		'^.+\\.tsx?$': ['ts-jest', { useESM: true }],
+		'^.+\\.tsx?$': ['ts-jest', { useESM: true, ...tsJestConfig }],
 	},
 	testPathIgnorePatterns: ['<rootDir>/tests'],
-	...(Object.keys(jestGlobals).length === 0 ? {} : { globals: jestGlobals }),
 }
 
 export default config

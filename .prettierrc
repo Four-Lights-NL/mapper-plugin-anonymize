@@ -3,5 +3,15 @@
 	"singleQuote": true,
 	"semi": false,
 	"trailingComma": "all",
-	"printWidth": 100
+	"printWidth": 100,
+	"overrides": [
+		{
+			"files": [".*rc", "*.json"],
+			"options": { "parser": "json" }
+		},
+		{
+			"files": ["*.md", "*.mdx"],
+			"options": { "parser": "markdown" }
+		}
+	]
 }
