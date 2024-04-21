@@ -83,21 +83,44 @@ const config = {
 You can use the `withClassification` method to easily add (sparse) classifications to your (short and long-form) properties.
 
 ```typescript
-import { withClassification } from '@fourlights/mapper-plugin-anonymize'
+import { map } from '@fourlights/mapper'
+import AnonymizePlugin, { withClassification } from '@fourlights/mapper-plugin-anonymize'
+import type { MapperConfigWithClassification } from '@fourlights/mapper-plugin-anonymize'
 
+const user = {} // see example above
 const config = {
-	name: (d) => d.name,
+	name: [(d) => d.name, 'pii'], // inline data classification
 	birthday: (d) => d.birthday,
 	theme: (d) => d.theme,
-}
+} as MapperConfigWithClassification<typeof user>
 
-map(
-	withClassification(config, {
-		firstName: 'pii',
-		birthday: 'sensitive',
-	}),
-	{ plugins: [new AnonymizePlugin()] },
-)
+map(user, withClassification(config), { plugins: [new AnonymizePlugin()] })
+
+// or, when providing additional properties
+map(user, withClassification(config, { birthday: 'sensitive' }), {
+	plugins: [new AnonymizePlugin()],
+})
+```
+
+#### Super simple anonymized mapping
+
+You can also use the exported map function from this plugin instead of the one from `@fourlights/mapper`:
+
+```typescript
+import { map } from '@fourlights/mapper-plugin-anonymize'
+
+map(user, { name: [(d) => d.name, 'pii'], birthday: (d) => d.birthday })
+```
+
+which is equivalent to
+
+```typescript
+import { map } from '@fourlights/mapper'
+import AnonymizePlugin, { withClassification } from '@fourlights/mapper-plugin-anonymize'
+
+map(user, withClassification({ name: [(d) => d.name, 'pii'], birthday: (d) => d.birthday }), {
+	plugins: [new AnonymizePlugin()],
+})
 ```
 
 ## Contributing

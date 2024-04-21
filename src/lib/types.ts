@@ -1,4 +1,9 @@
-import type { MapperFn, MapperProperty, MapperPropertyOptions } from '@fourlights/mapper'
+import type {
+	MapperConfig,
+	MapperFn,
+	MapperProperty,
+	MapperPropertyOptions,
+} from '@fourlights/mapper'
 import type { FakeMethodOptions } from './methods/fake'
 import type { RedactMethodOptions } from './methods/redact'
 
@@ -32,3 +37,5 @@ export type AnonymizePropertyOptions = MapperPropertyOptions & {
 	classification?: DataTaxonomy
 	anonymize?: AnonymizeMethod
 }
+
+export type AnonymizeMapperConfig<T> = MapperConfig<T, AnonymizePropertyOptions>

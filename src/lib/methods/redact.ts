@@ -44,8 +44,9 @@ class Redact<T> implements AnonymizeMethodFactory<T> {
 		return this.shouldTraverse(property)
 			? ({
 					...anonymizedProperty,
-					row: (row, parentKey, rowId) => {
-						return this.generate(`${rowId!}`, property)(row, parentKey, rowId)
+					apply: (row, parentKey, rowId) => {
+						const innerKey = `${rowId!}`.substring(parentKey ? parentKey.length + 1 : 0)
+						return this.generate(innerKey, property)(row, parentKey, rowId)
 					},
 				} as MapperProperty<T>)
 			: anonymizedProperty
