@@ -1,5 +1,14 @@
 
 
+## [1.2.0](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.1.0...v1.2.0) (2024-04-21)
+
+
+### Features
+
+* add helper `map` function to quickly use the plugin ([fcb2d77](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/fcb2d773cd1c945f205354a3723995599239d0c4))
+* handle inline data taxonomy when using `withClassification` ([91f6ac0](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/91f6ac09abe6068d7af439c2bae125342d4a4b32))
+* update `@fourlights/mapper` to `1.2.0` ([389f26b](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/389f26be1f1b4185495a6d42be7f9b3e59dacec4))
+
 ## [1.1.0](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.0.1...v1.1.0) (2024-04-12)
 
 

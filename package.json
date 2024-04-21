@@ -1,6 +1,6 @@
 {
 	"name": "@fourlights/mapper-plugin-anonymize",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"description": "Fuzzy anonymization plugin for @fourlights/mapper",
 	"packageManager": "npm@10.5.0",
 	"type": "module",
@@ -14,7 +14,10 @@
 			"require": "./dist/index.cjs"
 		}
 	},
-	"files": ["dist", "README.md"],
+	"files": [
+		"dist",
+		"README.md"
+	],
 	"scripts": {
 		"release": "release-it",
 		"prepare": "node .husky/install.mjs",
@@ -40,7 +43,15 @@
 		"url": "https://github.com/Four-Lights-NL/mapper-plugin-anonymize/issues"
 	},
 	"license": "MIT",
-	"keywords": ["plugin", "mapper", "anonymize", "anonymization", "faker", "redact", "redaction"],
+	"keywords": [
+		"plugin",
+		"mapper",
+		"anonymize",
+		"anonymization",
+		"faker",
+		"redact",
+		"redaction"
+	],
 	"peerDependencies": {
 		"@fourlights/mapper": "^1.2.0"
 	},
