@@ -57,6 +57,7 @@ export class Fake<T> implements AnonymizeMethodFactory<T> {
 			...this.fakerModuleMethodsMap('internet', { email }),
 			...this.fakerModuleMethodsMap('location'),
 			...this.fakerModuleMethodsMap('phone'),
+			birthdate: () => this.faker.date.birthdate(),
 		}).reduce(
 			(acc, [name, method]) => acc.concat([{ name, method }]),
 			[] as { name: string; method: MapperFn<T> }[],
