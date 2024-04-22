@@ -1,5 +1,13 @@
 
 
+## [1.3.0](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.2.0...v1.3.0) (2024-04-22)
+
+
+### Features
+
+* add `birthdate` to faker ([bebb00d](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/bebb00dcec253f59d3ed3d5489aac8b78afa0fbf))
+* target `@fourlights/mapper` v`1.3.0` ([3b45025](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/3b45025c710b58d30264abbdda9b3a972e121036))
+
 ## [1.2.0](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.1.0...v1.2.0) (2024-04-21)
 
 
