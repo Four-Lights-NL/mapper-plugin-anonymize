@@ -16,11 +16,11 @@ export function example02(seed?: string | number) {
 				anonymize: { method: 'fake', options: { key: 'fullName' } },
 			},
 		},
-		birthday: {
-			value: (data) => formatISO(data.birthday, { representation: 'date' }),
+		birthdate: {
+			value: (data) => formatISO(data.birthdate, { representation: 'date' }),
 			options: { classification: 'pii', anonymize: 'redact' },
 		},
-		age: (data) => differenceInYears(new Date(), data.birthday),
+		age: (data) => differenceInYears(new Date(), data.birthdate),
 	}
 
 	console.log(map(user, config, { plugins: [new AnonymizePlugin({ seed })] }))
