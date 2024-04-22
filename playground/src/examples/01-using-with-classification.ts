@@ -1,12 +1,11 @@
-import type { MapperConfig } from '@fourlights/mapper'
-import { map } from '@fourlights/mapper'
-import AnonymizePlugin, { withClassification } from '@fourlights/mapper-plugin-anonymize'
+import { map, type MapperConfig } from '@fourlights/mapper'
+import { AnonymizePlugin, withClassification } from '@fourlights/mapper-plugin-anonymize'
 
 import { user } from './input'
 
-export default (seed?: number | string) => {
+export function example01(seed?: number | string) {
 	// First, we define a MapperConfig for the user object with short-form syntax
-	const config: MapperConfig<typeof user, {}> = {
+	const config: MapperConfig<typeof user> = {
 		firstName: (d) => d.firstName,
 		lastName: (d) => d.lastName,
 		fullName: (d) => `${d.firstName} ${d.lastName}`,

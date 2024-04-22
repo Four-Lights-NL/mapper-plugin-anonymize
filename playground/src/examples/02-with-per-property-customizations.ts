@@ -1,12 +1,11 @@
 import { differenceInYears, formatISO } from 'date-fns'
 
-import { map, MapperConfig } from '@fourlights/mapper'
-import type { AnonymizePropertyOptions } from '@fourlights/mapper-plugin-anonymize'
-import AnonymizePlugin from '@fourlights/mapper-plugin-anonymize'
+import { map, type MapperConfig } from '@fourlights/mapper'
+import { AnonymizePlugin, type AnonymizePropertyOptions } from '@fourlights/mapper-plugin-anonymize'
 
 import { user } from './input'
 
-export default (seed?: string | number) => {
+export function example02(seed?: string | number) {
 	const config: MapperConfig<typeof user, AnonymizePropertyOptions> = {
 		firstName: { value: (data) => data.firstName, options: { classification: 'pii' } },
 		lastName: { value: (data) => data.lastName, options: { classification: 'pii' } },
