@@ -4,10 +4,9 @@ This package is a plugin for the [@fourlights/mapper](https://github.com/Four-Li
 
 ## Installation
 
-You can install this package using npm. It requires `@fourlights/mapper` as well.
+You can install this package using npm. It lists `@fourlights/mapper` as a peer dependency.
 
 ```bash
-npm install @fourlights/mapper
 npm install @fourlights/mapper-plugin-anonymize
 ```
 
