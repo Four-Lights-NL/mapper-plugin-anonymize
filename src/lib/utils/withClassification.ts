@@ -6,14 +6,14 @@ type AnonymizeMapperPropertyWithClassification<T> = [
 	AnonymizeMapperProperty<T>,
 	DataTaxonomy | undefined,
 ]
+
 export type MapperConfigWithClassification<T> = {
 	[key: string]: AnonymizeMapperProperty<T> | AnonymizeMapperPropertyWithClassification<T>
 }
-
-const withClassification = <T>(
+export function withClassification<T>(
 	config: MapperConfig<T> | AnonymizeMapperConfig<T> | MapperConfigWithClassification<T>,
 	properties: Record<string, DataTaxonomy | undefined> = {},
-) => {
+) {
 	const newConfig: MapperConfig<T, AnonymizePropertyOptions> = {}
 
 	for (const key of Object.keys(config)) {
@@ -40,5 +40,3 @@ const withClassification = <T>(
 
 	return { ...config, ...newConfig } as AnonymizeMapperConfig<T>
 }
-
-export default withClassification

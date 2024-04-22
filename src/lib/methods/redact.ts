@@ -1,8 +1,8 @@
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
-import type { AnonymizeMethodFactory } from '../types'
-import getMethodOptions from '../utils/getMethodOptions'
 import fuzzysort from 'fuzzysort'
-import unwrapValue from '../utils/unwrapValue'
+import type { AnonymizeMethodFactory } from '../types'
+import { getMethodOptions } from '../utils/getMethodOptions'
+import { unwrapValue } from '../utils/unwrapValue'
 
 export type RedactMethodOptions = {
 	key?: string
@@ -10,7 +10,7 @@ export type RedactMethodOptions = {
 	traverse?: boolean
 }
 
-class Redact<T> implements AnonymizeMethodFactory<T> {
+export class Redact<T> implements AnonymizeMethodFactory<T> {
 	private readonly redactMethods: {
 		name: string
 		methodFactory: (replaceValue: string) => MapperFn<T>
@@ -63,5 +63,3 @@ class Redact<T> implements AnonymizeMethodFactory<T> {
 		return (d: T) => result[0].obj.methodFactory(replaceValue)(d)
 	}
 }
-
-export default Redact
