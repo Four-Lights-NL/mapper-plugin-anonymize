@@ -8,11 +8,10 @@
 		"build": "tsc"
 	},
 	"dependencies": {
-		"@fourlights/mapper": "^1.1.1",
 		"@fourlights/mapper-plugin-anonymize": "file:../",
 		"date-fns": "^3.6.0"
 	},
 	"devDependencies": {
-		"typescript": "^5.4.3"
+		"typescript": "^5.4.5"
 	}
 }

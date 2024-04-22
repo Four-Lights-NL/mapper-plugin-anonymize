@@ -1,10 +1,9 @@
 import * as mapper from '@fourlights/mapper'
-import withClassification from './withClassification'
-import type { MapperConfigWithClassification } from './withClassification'
-import AnonymizePlugin from '../anonymize'
+import { type MapperConfigWithClassification, withClassification } from './withClassification'
+import { AnonymizePlugin } from '../anonymize'
 import type { AnonymizeOptions } from '../types'
 
-function map<T>(
+export function map<T>(
 	data: T,
 	config: MapperConfigWithClassification<T>,
 	anonymizeOptions?: AnonymizeOptions,
@@ -13,5 +12,3 @@ function map<T>(
 		plugins: [new AnonymizePlugin(anonymizeOptions)],
 	})
 }
-
-export default map

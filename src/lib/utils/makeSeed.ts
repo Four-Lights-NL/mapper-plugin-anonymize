@@ -1,4 +1,4 @@
-const makeSeed = (seed: string | number): number => {
+export function makeSeed(seed: string | number): number {
 	return typeof seed === 'string'
 		? seed
 				.split('')
@@ -6,5 +6,3 @@ const makeSeed = (seed: string | number): number => {
 				.reduce((acc, cur, idx) => acc + (cur << idx), 0)
 		: seed
 }
-
-export default makeSeed

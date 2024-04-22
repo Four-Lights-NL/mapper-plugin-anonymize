@@ -8,10 +8,10 @@ import type {
 	AnonymizePropertyOptions,
 } from './types'
 import defu from 'defu'
-import Fake from './methods/fake'
-import Redact from './methods/redact'
+import { Fake } from './methods/fake'
+import { Redact } from './methods/redact'
 
-class AnonymizePlugin implements MapperPlugin {
+export class AnonymizePlugin implements MapperPlugin {
 	private readonly _options: AnonymizeOptions = {
 		piiData: 'fake',
 		sensitiveData: 'redact',
@@ -115,5 +115,3 @@ class AnonymizePlugin implements MapperPlugin {
 		return { ...config, ...anonymizedConfig }
 	}
 }
-
-export default AnonymizePlugin

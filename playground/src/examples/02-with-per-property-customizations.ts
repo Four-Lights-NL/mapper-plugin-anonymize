@@ -1,12 +1,11 @@
 import { differenceInYears, formatISO } from 'date-fns'
 
-import { map, MapperConfig } from '@fourlights/mapper'
-import type { AnonymizePropertyOptions } from '@fourlights/mapper-plugin-anonymize'
-import AnonymizePlugin from '@fourlights/mapper-plugin-anonymize'
+import { map, type MapperConfig } from '@fourlights/mapper'
+import { AnonymizePlugin, type AnonymizePropertyOptions } from '@fourlights/mapper-plugin-anonymize'
 
 import { user } from './input'
 
-export default (seed?: string | number) => {
+export function example02(seed?: string | number) {
 	const config: MapperConfig<typeof user, AnonymizePropertyOptions> = {
 		firstName: { value: (data) => data.firstName, options: { classification: 'pii' } },
 		lastName: { value: (data) => data.lastName, options: { classification: 'pii' } },
@@ -17,11 +16,11 @@ export default (seed?: string | number) => {
 				anonymize: { method: 'fake', options: { key: 'fullName' } },
 			},
 		},
-		birthday: {
-			value: (data) => formatISO(data.birthday, { representation: 'date' }),
+		birthdate: {
+			value: (data) => formatISO(data.birthdate, { representation: 'date' }),
 			options: { classification: 'pii', anonymize: 'redact' },
 		},
-		age: (data) => differenceInYears(new Date(), data.birthday),
+		age: (data) => differenceInYears(new Date(), data.birthdate),
 	}
 
 	console.log(map(user, config, { plugins: [new AnonymizePlugin({ seed })] }))

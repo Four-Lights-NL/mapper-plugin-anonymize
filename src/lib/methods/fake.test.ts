@@ -1,5 +1,5 @@
 import { name as packageName } from '#package.json'
-import Fake from './fake'
+import { Fake } from './fake'
 
 describe(packageName, () => {
 	describe('Fake', () => {

@@ -1,6 +1,6 @@
 import { name as packageName } from '#package.json'
-import Redact from './redact'
-import { MapperProperty } from '@fourlights/mapper'
+import { Redact } from './redact'
+import { type MapperProperty } from '@fourlights/mapper'
 
 describe(packageName, () => {
 	describe('Redact', () => {

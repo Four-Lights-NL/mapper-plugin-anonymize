@@ -6,7 +6,7 @@
 	"printWidth": 100,
 	"overrides": [
 		{
-			"files": [".*rc", "*.json"],
+			"files": [".*rc"],
 			"options": { "parser": "json" }
 		},
 		{

@@ -1,4 +1,7 @@
-import examples from './examples'
+import { examples } from './examples'
 
 const seed = 69
-examples.map((runExample) => runExample(seed))
+examples.map((runExample, idx) => {
+	console.log(`Example ${idx + 1}`)
+	runExample(seed)
+})
