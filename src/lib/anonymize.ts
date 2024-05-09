@@ -8,23 +8,23 @@ import type {
 	AnonymizePropertyOptions,
 } from './types'
 import defu from 'defu'
-import { Fake } from './methods/fake'
-import { Redact } from './methods/redact'
+import { Fake, FakeMethodOptions } from './methods/fake'
+import { Redact, RedactMethodOptions } from './methods/redact'
 
 export class AnonymizePlugin implements MapperPlugin {
-	private readonly _options: AnonymizeOptions = {
+	private readonly _options: AnonymizeOptions<unknown, unknown> = {
 		piiData: 'fake',
 		sensitiveData: 'redact',
 		seed: undefined,
 		traverse: true,
 	}
 
-	constructor(options?: AnonymizeOptions) {
+	constructor(options?: AnonymizeOptions<unknown, unknown>) {
 		this._options = defu(options, this._options)
 	}
 
-	private unwrap(options: AnonymizeMethod) {
-		return typeof options === 'object' ? (options as AnonymizeMethodOptions).method : options
+	private unwrap<TData, TOptions>(options: AnonymizeMethod<TData, TOptions>) {
+		return typeof options === 'object' ? (options as AnonymizeMethodOptions<TData>).method : options
 	}
 
 	private get fallbackAnonymization() {
@@ -34,7 +34,7 @@ export class AnonymizePlugin implements MapperPlugin {
 		}
 	}
 
-	private isFunction(options: AnonymizePropertyOptions) {
+	private isFunction<TData, TOptions>(options: AnonymizePropertyOptions<TData, TOptions>) {
 		return (
 			typeof options.anonymize === 'function' ||
 			(options.anonymize === undefined &&
@@ -42,7 +42,10 @@ export class AnonymizePlugin implements MapperPlugin {
 		)
 	}
 
-	private isMethod(options: AnonymizePropertyOptions, method: AnonymizeMethods) {
+	private isMethod<TData, TOptions>(
+		options: AnonymizePropertyOptions<TData, TOptions>,
+		method: AnonymizeMethods,
+	) {
 		const matchesMethod =
 			options.anonymize !== undefined && this.unwrap(options.anonymize!) === method
 		const useFallbackMethod =
@@ -51,7 +54,9 @@ export class AnonymizePlugin implements MapperPlugin {
 		return matchesMethod || useFallbackMethod
 	}
 
-	config<T>(config: MapperConfig<T, AnonymizePropertyOptions>): MapperConfig<T> {
+	config<TData, TOptions extends Record<string, any>>(
+		config: MapperConfig<TData, AnonymizePropertyOptions<TData, TOptions>>,
+	): MapperConfig<TData> {
 		const anonymizedConfig: typeof config = {} // Holds the mapper configuration with anonymized properties
 
 		// Find all properties with a data classification
@@ -63,7 +68,10 @@ export class AnonymizePlugin implements MapperPlugin {
 			})
 			.reduce(
 				(acc, key) => {
-					const property = config[key] as MapperProperty<T, AnonymizePropertyOptions>
+					const property = config[key] as MapperProperty<
+						TData,
+						AnonymizePropertyOptions<TData, TOptions>
+					>
 					if (this.isMethod(property.options!, 'redact')) acc.redact[key] = property
 					else if (this.isMethod(property.options!, 'fake')) acc.fake[key] = property
 					else if (this.isFunction(property.options!)) acc.custom[key] = property
@@ -71,17 +79,20 @@ export class AnonymizePlugin implements MapperPlugin {
 				},
 				{ redact: {}, fake: {}, custom: {} } as Record<
 					'redact' | 'fake' | 'custom',
-					Record<string, MapperProperty<T, AnonymizePropertyOptions>>
+					Record<string, MapperProperty<TData, AnonymizePropertyOptions<TData, TOptions>>>
 				>,
 			)
 
 		// Anonymize using redact
 		if (toAnonymize.redact) {
-			const redact = new Redact<T>()
+			const redact = new Redact<TData>()
 			for (const [key, property] of Object.entries(toAnonymize.redact)) {
 				anonymizedConfig[key] = {
 					...property,
-					...redact.anonymize(key, property),
+					...redact.anonymize(
+						key,
+						property as MapperProperty<TData, AnonymizePropertyOptions<TData, RedactMethodOptions>>,
+					),
 				}
 			}
 		}
@@ -89,12 +100,18 @@ export class AnonymizePlugin implements MapperPlugin {
 		// Anonymize using fake
 		if (toAnonymize.fake) {
 			const { seed, traverse } = this._options
-			const fake = new Fake<T>(seed)
+			const fake = new Fake<TData>(seed)
 
 			for (const [key, property] of Object.entries(toAnonymize.fake)) {
 				anonymizedConfig[key] = {
 					...property,
-					...fake.anonymize(key, property),
+					...fake.anonymize(
+						key,
+						property as MapperProperty<
+							TData,
+							AnonymizePropertyOptions<TData, FakeMethodOptions<TData>>
+						>,
+					),
 				}
 			}
 		}
@@ -105,10 +122,17 @@ export class AnonymizePlugin implements MapperPlugin {
 				const anonymize =
 					typeof property.options!.anonymize === 'function'
 						? property.options!.anonymize
-						: (this.fallbackAnonymization[
-								property.options!.classification!
-							] as AnonymizePropertyFn<T>)
-				anonymizedConfig[key] = { ...property, ...anonymize(key, property) }
+						: (this.fallbackAnonymization[property.options!.classification!] as AnonymizePropertyFn<
+								TData,
+								Record<string, any>
+							>)
+				anonymizedConfig[key] = {
+					...property,
+					...anonymize(
+						key,
+						property as MapperProperty<Record<string, any>> & MapperProperty<TData>,
+					),
+				}
 			}
 		}
 

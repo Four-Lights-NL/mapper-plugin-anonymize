@@ -1,24 +1,35 @@
 import type { AnonymizeMapperConfig, AnonymizePropertyOptions, DataTaxonomy } from '../types'
 import type { MapperConfig, MapperFn, MapperProperty } from '@fourlights/mapper'
 
-type AnonymizeMapperProperty<T> = AnonymizeMapperConfig<T>[keyof AnonymizeMapperConfig<T>]
-type AnonymizeMapperPropertyWithClassification<T> = [
-	AnonymizeMapperProperty<T>,
+type AnonymizeMapperProperty<TData, TOptions> = AnonymizeMapperConfig<
+	TData,
+	TOptions
+>[keyof AnonymizeMapperConfig<TData, TOptions>]
+type AnonymizeMapperPropertyWithClassification<TData, TOptions> = [
+	AnonymizeMapperProperty<TData, TOptions>,
 	DataTaxonomy | undefined,
 ]
 
-export type MapperConfigWithClassification<T> = {
-	[key: string]: AnonymizeMapperProperty<T> | AnonymizeMapperPropertyWithClassification<T>
+export type MapperConfigWithClassification<TData, TOptions = {}> = {
+	[key: string]:
+		| AnonymizeMapperProperty<TData, TOptions>
+		| AnonymizeMapperPropertyWithClassification<TData, TOptions>
 }
-export function withClassification<T>(
-	config: MapperConfig<T> | AnonymizeMapperConfig<T> | MapperConfigWithClassification<T>,
+export function withClassification<TData, TOptions>(
+	config:
+		| MapperConfig<TData>
+		| AnonymizeMapperConfig<TData, TOptions>
+		| MapperConfigWithClassification<TData, TOptions>,
 	properties: Record<string, DataTaxonomy | undefined> = {},
 ) {
-	const newConfig: MapperConfig<T, AnonymizePropertyOptions> = {}
+	const newConfig: MapperConfig<TData, AnonymizePropertyOptions<TData, TOptions>> = {}
 
 	for (const key of Object.keys(config)) {
 		if (Array.isArray(config[key])) {
-			const [prop, classification] = config[key] as AnonymizeMapperPropertyWithClassification<T>
+			const [prop, classification] = config[key] as AnonymizeMapperPropertyWithClassification<
+				TData,
+				TOptions
+			>
 			if (classification && !(key in properties)) {
 				properties[key] = classification
 			}
@@ -30,13 +41,13 @@ export function withClassification<T>(
 		if (!config[key]) continue
 
 		const propWithClassification = (
-			typeof config[key] !== 'object' ? { value: config[key] as MapperFn<T> } : config[key]
-		) as MapperProperty<T, AnonymizePropertyOptions>
+			typeof config[key] !== 'object' ? { value: config[key] as MapperFn<TData> } : config[key]
+		) as MapperProperty<TData, AnonymizePropertyOptions<TData, TOptions>>
 
 		propWithClassification.options = { classification: properties[key] }
 
 		newConfig[key] = propWithClassification
 	}
 
-	return { ...config, ...newConfig } as AnonymizeMapperConfig<T>
+	return { ...config, ...newConfig } as AnonymizeMapperConfig<TData, TOptions>
 }

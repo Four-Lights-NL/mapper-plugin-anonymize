@@ -1,19 +1,23 @@
 import { en, Faker } from '@faker-js/faker'
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
-import type { AnonymizeMethodFactory } from '../types'
+import type { AnonymizeMethodFactory, AnonymizePropertyOptions } from '../types'
 import fuzzysort from 'fuzzysort'
 import { getMethodOptions } from '../utils/getMethodOptions'
 import { makeSeed } from '../utils/makeSeed'
 import { unwrapValue } from '../utils/unwrapValue'
 import { getMethods } from '../utils/getMethods'
 
-export type FakeMethodOptions = {
+export type FakeMethodOptions<TData> = {
 	seed?: number | string
 	key?: string
+	value?: (faker: Faker, data: TData, outerKey?: string, innerKey?: string | number) => any
 	traverse?: boolean
 }
 
-export class Fake<T> implements AnonymizeMethodFactory<T> {
+export class Fake<TData>
+	implements
+		AnonymizeMethodFactory<TData, AnonymizePropertyOptions<TData, FakeMethodOptions<TData>>>
+{
 	private readonly specialFakerMethods: { name: string; method: any }[] = []
 	private readonly faker: Faker
 	private readonly minMatchKeyLength = 2
@@ -60,21 +64,26 @@ export class Fake<T> implements AnonymizeMethodFactory<T> {
 			birthdate: () => this.faker.date.birthdate(),
 		}).reduce(
 			(acc, [name, method]) => acc.concat([{ name, method }]),
-			[] as { name: string; method: MapperFn<T> }[],
+			[] as { name: string; method: MapperFn<TData> }[],
 		)
 
 		return fakerMethodsMap
 	}
 
-	private shouldTraverse(property: MapperProperty<T>) {
-		const options = getMethodOptions<FakeMethodOptions>(property)
+	private shouldTraverse(
+		property: MapperProperty<TData, AnonymizePropertyOptions<TData, FakeMethodOptions<TData>>>,
+	) {
+		const options = getMethodOptions(property)
 		return options?.traverse ?? true
 	}
 
-	anonymize(key: string, property: MapperProperty<T>) {
-		const anonymizedProperty: MapperProperty<T> = {
-			value: (data: T, _wrappedKey?: string, rowId?: string | number) => {
-				if (typeof data[key as keyof T] === 'object' && this.shouldTraverse(property))
+	anonymize(
+		key: string,
+		property: MapperProperty<TData, AnonymizePropertyOptions<TData, FakeMethodOptions<TData>>>,
+	) {
+		const anonymizedProperty: MapperProperty<TData> = {
+			value: (data: TData, _wrappedKey?: string, rowId?: string | number) => {
+				if (typeof data[key as keyof TData] === 'object' && this.shouldTraverse(property))
 					return property.value(data, key, rowId)
 				return this.generate(key, property)(data, key, rowId)
 			},
@@ -87,15 +96,21 @@ export class Fake<T> implements AnonymizeMethodFactory<T> {
 						const innerKey = `${rowId!}`.substring(parentKey ? parentKey.length + 1 : 0)
 						return this.generate(innerKey, property)(row, parentKey, rowId)
 					},
-				} as MapperProperty<T>)
+				} as MapperProperty<TData>)
 			: anonymizedProperty
 	}
 
-	generate(key: string, property: MapperProperty<T>) {
-		const options = getMethodOptions<FakeMethodOptions>(property)
+	generate(
+		key: string,
+		property: MapperProperty<TData, AnonymizePropertyOptions<TData, FakeMethodOptions<TData>>>,
+	) {
+		const options = getMethodOptions(property)
 
 		if (options?.seed) this.faker.seed(makeSeed(options.seed))
 		if (options?.key) key = options.key
+		if (options?.value)
+			return (data: TData, outerKey?: string, innerKey?: string | number) =>
+				options.value!(this.faker, data, outerKey, innerKey)
 
 		const result = fuzzysort.go(key, this.specialFakerMethods, {
 			key: 'name',
@@ -108,8 +123,8 @@ export class Fake<T> implements AnonymizeMethodFactory<T> {
 			)
 		}
 		return key.length < this.minMatchKeyLength || result.length === 0
-			? (d: T, _wrappedKey?: string, rowId?: string | number) =>
-					this.faker.word.adjective({ length: unwrapValue(property, d, rowId).length })
-			: (_: T) => result[0].obj.method()
+			? (d: TData, _outerKey?: string, innerKey?: string | number) =>
+					this.faker.word.adjective({ length: unwrapValue(property, d, innerKey).length })
+			: (_: TData) => result[0].obj.method()
 	}
 }
