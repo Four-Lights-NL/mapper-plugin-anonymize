@@ -1,11 +1,11 @@
 import { en, Faker } from '@faker-js/faker'
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
 import type { AnonymizeMethodFactory, AnonymizePropertyOptions } from '../types'
-import fuzzysort from 'fuzzysort'
 import { getMethodOptions } from '../utils/getMethodOptions'
 import { makeSeed } from '../utils/makeSeed'
 import { unwrapValue } from '../utils/unwrapValue'
 import { getMethods } from '../utils/getMethods'
+import uFuzzy from '@leeoniya/ufuzzy'
 
 export type FakeMethodOptions<TData> = {
 	seed?: number | string
@@ -112,19 +112,19 @@ export class Fake<TData>
 			return (data: TData, outerKey?: string, innerKey?: string | number) =>
 				options.value!(this.faker, data, outerKey, innerKey)
 
-		const result = fuzzysort.go(key, this.specialFakerMethods, {
-			key: 'name',
-			limit: 1,
-		})
+		const [idxs, info, order] = new uFuzzy().search(
+			this.specialFakerMethods.map((m) => m.name),
+			key,
+		)
 
-		if (result.length === 0) {
+		if (idxs?.length === 0) {
 			console.log(
 				`No match found for key \`${key}\`. Consider adding it. Using random adjective as fallback`,
 			)
 		}
-		return key.length < this.minMatchKeyLength || result.length === 0
+		return key.length < this.minMatchKeyLength || idxs?.length === 0
 			? (d: TData, _outerKey?: string, innerKey?: string | number) =>
 					this.faker.word.adjective({ length: unwrapValue(property, d, innerKey).length })
-			: (_: TData) => result[0].obj.method()
+			: (_: TData) => this.specialFakerMethods[info!.idx[order![0]]].method()
 	}
 }
