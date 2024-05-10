@@ -1,8 +1,8 @@
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
-import fuzzysort from 'fuzzysort'
 import type { AnonymizeMethodFactory, AnonymizePropertyOptions } from '../types'
 import { getMethodOptions } from '../utils/getMethodOptions'
 import { unwrapValue } from '../utils/unwrapValue'
+import uFuzzy from '@leeoniya/ufuzzy'
 
 export type RedactMethodOptions = {
 	key?: string
@@ -66,10 +66,13 @@ export class Redact<TData>
 		const options = getMethodOptions(property)
 
 		const replaceValue = options?.replaceValue || '*'
-		const result = fuzzysort.go(key, this.redactMethods, { key: 'name', limit: 1 })
-		if (key.length < this.minMatchKeyLength || result.length === 0)
+		const [idxs, info, order] = new uFuzzy().search(
+			this.redactMethods.map((m) => m.name),
+			key,
+		)
+		if (key.length < this.minMatchKeyLength || idxs?.length === 0)
 			return (d: TData, _wrappedKey?: string, rowId?: string | number) =>
 				`${unwrapValue(property, d, rowId)}`.replaceAll(/\w/g, replaceValue)
-		return (d: TData) => result[0].obj.methodFactory(replaceValue)(d)
+		return (d: TData) => this.redactMethods[info!.idx[order![0]]].methodFactory(replaceValue)(d)
 	}
 }

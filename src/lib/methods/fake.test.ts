@@ -9,6 +9,9 @@ describe(packageName, () => {
 		})
 
 		const props = {
+			prefix: () => 'Mr.',
+			firstName: () => 'John',
+			lastName: () => 'Doe',
 			email: {
 				value: () => 'exposed@example.com',
 			},
@@ -33,6 +36,14 @@ describe(packageName, () => {
 			expect(email).toBe('Winifred.Watsica@gmail.com')
 		})
 
+		it.each([
+			['First_Name', 'Winifred'],
+			['Last_Name', 'Watsica'],
+			['Zip_Code', '03133'],
+		])('should fuzzy match %s', (key, expected) => {
+			expect(fake.generate(key, { value: () => key })({})).toBe(expected)
+		})
+
 		it('should use the provided value function if it exists', () => {
 			const result = fake.generate('email', {
 				value: () => 'test@example.com',
@@ -47,6 +58,7 @@ describe(packageName, () => {
 			})({})
 			expect(result).toBe('Jane.Doe18@gmail.com')
 		})
+
 		it('should generate a random word for unmatched properties', () => {
 			const result = fake.generate('other-property', { value: () => '12345678' })({})
 			expect(result).toBe('enormous')
