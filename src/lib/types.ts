@@ -10,32 +10,41 @@ import type { RedactMethodOptions } from './methods/redact'
 export type DataTaxonomy = 'pii' | 'sensitive'
 export type AnonymizeMethods = 'fake' | 'redact' | 'none'
 
-export type AnonymizePropertyFn<T> = (
+export type AnonymizePropertyFn<TData, TOptions> = (
 	key: string,
-	property: MapperProperty<T>,
-) => MapperProperty<T, AnonymizePropertyOptions>
+	property: MapperProperty<TData, AnonymizePropertyOptions<TData, TOptions>>,
+) => MapperProperty<TData>
 
-export type AnonymizeMethodFactory<T> = {
-	anonymize: AnonymizePropertyFn<T>
-	generate: (key: string, property: MapperProperty<T>) => MapperFn<T>
+export type AnonymizeMethodFactory<TData, TOptions> = {
+	anonymize: AnonymizePropertyFn<TData, TOptions>
+	generate: (
+		key: string,
+		property: MapperProperty<TData, AnonymizePropertyOptions<TData, TOptions>>,
+	) => MapperFn<TData>
 }
 
-export type AnonymizeMethod = AnonymizeMethods | AnonymizePropertyFn<any> | AnonymizeMethodOptions
-export type AnonymizeMethodOptions =
-	| { method: 'fake'; options?: FakeMethodOptions }
+export type AnonymizeMethod<TData, TOptions> =
+	| AnonymizeMethods
+	| AnonymizePropertyFn<TData, TOptions>
+	| AnonymizeMethodOptions<TData>
+export type AnonymizeMethodOptions<T> =
+	| { method: 'fake'; options?: FakeMethodOptions<T> }
 	| { method: 'redact'; options?: RedactMethodOptions }
-	| { method: AnonymizePropertyFn<any>; options?: Record<string, any> }
+	| { method: AnonymizePropertyFn<T, Record<string, any>>; options?: Record<string, any> }
 
-export type AnonymizeOptions = {
+export type AnonymizeOptions<TData, TOptions> = {
 	seed?: number | string
-	piiData?: AnonymizeMethod
-	sensitiveData?: AnonymizeMethod
+	piiData?: AnonymizeMethod<TData, TOptions>
+	sensitiveData?: AnonymizeMethod<TData, TOptions>
 	traverse?: boolean
 }
 
-export type AnonymizePropertyOptions = MapperPropertyOptions & {
+export type AnonymizePropertyOptions<TData, TOptions> = MapperPropertyOptions & {
 	classification?: DataTaxonomy
-	anonymize?: AnonymizeMethod
+	anonymize?: AnonymizeMethod<TData, TOptions>
 }
 
-export type AnonymizeMapperConfig<T> = MapperConfig<T, AnonymizePropertyOptions>
+export type AnonymizeMapperConfig<TData, TOptions = {}> = MapperConfig<
+	TData,
+	AnonymizePropertyOptions<TData, TOptions>
+>

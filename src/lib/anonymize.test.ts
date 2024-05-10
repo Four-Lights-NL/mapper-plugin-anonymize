@@ -1,8 +1,7 @@
 import { name as packageName } from '#package.json'
 import { map, type MapperConfig } from '@fourlights/mapper'
 import { AnonymizePlugin } from './anonymize'
-import type { AnonymizePropertyOptions } from './types'
-import type { FakeMethodOptions } from './methods/fake'
+import type { AnonymizeMapperConfig } from './types'
 
 describe(packageName, () => {
 	it('should not anonymize properties without classification', () => {
@@ -20,12 +19,12 @@ describe(packageName, () => {
 		const plugin = new AnonymizePlugin({ seed: 1, piiData: 'redact' })
 		const input = { email: 'exposed@example.com' }
 		const expected = { email: '*****@*****.com' }
-		const config: MapperConfig<typeof input, AnonymizePropertyOptions> = {
+		const config = {
 			email: {
 				value: (d) => d.email,
 				options: { classification: 'pii' },
 			},
-		} as MapperConfig<typeof input>
+		} as AnonymizeMapperConfig<typeof input>
 
 		expect(map(input, config, { plugins: [plugin] })).toEqual(expected)
 	})
@@ -34,12 +33,12 @@ describe(packageName, () => {
 		const plugin = new AnonymizePlugin({ seed: 1, piiData: 'fake' })
 		const input = { email: 'exposed@example.com' }
 		const expected = { email: 'Winifred.Watsica@gmail.com' }
-		const config: MapperConfig<typeof input, AnonymizePropertyOptions> = {
+		const config = {
 			email: {
 				value: (d) => d.email,
 				options: { classification: 'pii' },
 			},
-		} as MapperConfig<typeof input>
+		} as AnonymizeMapperConfig<typeof input>
 
 		expect(map(input, config, { plugins: [plugin] })).toEqual(expected)
 	})
@@ -48,15 +47,15 @@ describe(packageName, () => {
 		const plugin = new AnonymizePlugin({ seed: 1 })
 		const input = { firstName: 'Jane', lastName: 'Doe' }
 		const expected = { name: 'Winifred Watsica' }
-		const config: MapperConfig<typeof input, AnonymizePropertyOptions> = {
+		const config = {
 			name: {
 				value: (d) => `${d.firstName} ${d.lastName}`,
 				options: {
 					classification: 'pii',
-					anonymize: { method: 'fake', options: { key: 'fullName' } as FakeMethodOptions },
+					anonymize: { method: 'fake', options: { key: 'fullName' } },
 				},
 			},
-		} as MapperConfig<typeof input>
+		} as AnonymizeMapperConfig<typeof input>
 
 		expect(map(input, config, { plugins: [plugin] })).toEqual(expected)
 	})

@@ -3,12 +3,12 @@ import { type MapperConfigWithClassification, withClassification } from './withC
 import { AnonymizePlugin } from '../anonymize'
 import type { AnonymizeOptions } from '../types'
 
-export function map<T>(
-	data: T,
-	config: MapperConfigWithClassification<T>,
-	anonymizeOptions?: AnonymizeOptions,
+export function map<TData, TOptions>(
+	data: TData,
+	config: MapperConfigWithClassification<TData>,
+	anonymizeOptions?: AnonymizeOptions<TData, TOptions>,
 ): Record<string | number, any> {
 	return mapper.map(data, withClassification(config), {
-		plugins: [new AnonymizePlugin(anonymizeOptions)],
+		plugins: [new AnonymizePlugin(anonymizeOptions as AnonymizeOptions<unknown, unknown>)],
 	})
 }

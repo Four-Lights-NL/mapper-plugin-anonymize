@@ -33,6 +33,20 @@ describe(packageName, () => {
 			expect(email).toBe('Winifred.Watsica@gmail.com')
 		})
 
+		it('should use the provided value function if it exists', () => {
+			const result = fake.generate('email', {
+				value: () => 'test@example.com',
+				options: {
+					anonymize: {
+						method: 'fake',
+						options: {
+							value: (faker) => faker.internet.email({ firstName: 'Jane', lastName: 'Doe' }),
+						},
+					},
+				},
+			})({})
+			expect(result).toBe('Jane.Doe18@gmail.com')
+		})
 		it('should generate a random word for unmatched properties', () => {
 			const result = fake.generate('other-property', { value: () => '12345678' })({})
 			expect(result).toBe('enormous')
