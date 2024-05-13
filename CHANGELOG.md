@@ -1,5 +1,12 @@
 
 
+## [1.4.2](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.4.1...v1.4.2) (2024-05-13)
+
+
+### Bug Fixes
+
+* actually forward supplied locale to faker method ([fe01192](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/fe01192958fe9c855487073fdab12b40e6e7af73))
+
 ## [1.4.1](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.4.0...v1.4.1) (2024-05-13)
 
 
