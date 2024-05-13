@@ -1,7 +1,7 @@
-import { name as packageName } from '#package.json'
 import { map, type MapperConfig } from '@fourlights/mapper'
-import { AnonymizePlugin } from './anonymize'
-import type { AnonymizeMapperConfig } from './types'
+
+import { name as packageName } from '#package.json'
+import { type AnonymizeMapperConfig, AnonymizePlugin } from '../../src'
 
 describe(packageName, () => {
 	it('should not anonymize properties without classification', () => {
@@ -58,5 +58,19 @@ describe(packageName, () => {
 		} as AnonymizeMapperConfig<typeof input>
 
 		expect(map(input, config, { plugins: [plugin] })).toEqual(expected)
+	})
+
+	it('should not traverse date objects', () => {
+		const plugin = new AnonymizePlugin({ seed: 1 })
+		const input = { birthdate: new Date(1999, 5, 1) }
+		const config = {
+			birthdate: {
+				value: (data) => data.birthdate, // formatISO(data.birthdate, { representation: 'date' }),
+				options: { classification: 'pii', anonymize: 'redact' },
+			},
+		} as AnonymizeMapperConfig<typeof input>
+
+		const result = map(input, config, { plugins: [plugin] })
+		expect(result.birthdate).not.toBe(input.birthdate)
 	})
 })
