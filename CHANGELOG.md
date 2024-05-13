@@ -1,5 +1,12 @@
 
 
+## [1.4.1](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.4.0...v1.4.1) (2024-05-13)
+
+
+### Features
+
+* allow specifying faker locale when using plugin ([803fcfa](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/803fcfa2e9a13933a3c06cc7f1f461c0c06eb193))
+
 ## [1.4.0](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.3.0...v1.4.0) (2024-05-13)
 
 
