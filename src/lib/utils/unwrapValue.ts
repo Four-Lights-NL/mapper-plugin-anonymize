@@ -1,6 +1,6 @@
 import type { MapperProperty } from '@fourlights/mapper'
 
-export function unwrapValue<T, U = {}>(
+export function unwrapValue<T, U extends {} = {}>(
 	property: MapperProperty<T, U>,
 	data: T,
 	rowId?: string | number,
