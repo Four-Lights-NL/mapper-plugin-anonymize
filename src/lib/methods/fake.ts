@@ -1,4 +1,4 @@
-import { en, Faker } from '@faker-js/faker'
+import { en, Faker, type LocaleDefinition } from '@faker-js/faker'
 import uFuzzy from '@leeoniya/ufuzzy'
 
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
@@ -31,8 +31,9 @@ export class Fake<TData>
 	private readonly faker: Faker
 	private readonly minMatchKeyLength = 2
 
-	constructor(seed?: number | string) {
-		this.faker = new Faker({ locale: [en] })
+	constructor(seed?: number | string, locale?: LocaleDefinition | LocaleDefinition[]) {
+		locale ??= [en]
+		this.faker = new Faker({ locale })
 		if (seed) this.faker.seed(makeSeed(seed))
 
 		this.specialFakerMethods = this.fakerMethodsMap()
