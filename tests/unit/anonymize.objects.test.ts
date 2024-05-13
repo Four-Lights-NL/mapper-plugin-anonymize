@@ -1,7 +1,6 @@
 import { map, type MapperConfig } from '@fourlights/mapper'
-
-import { name as packageName } from '#package.json'
-import { AnonymizePlugin, withClassification } from '../../src'
+import { AnonymizePlugin, withClassification } from '@fourlights/mapper-plugin-anonymize'
+import { name as packageName } from '@fourlights/mapper-plugin-anonymize/package.json'
 
 describe(`${packageName}`, () => {
 	const testData = {

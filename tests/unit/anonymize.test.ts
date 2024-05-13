@@ -1,7 +1,6 @@
 import { map, type MapperConfig } from '@fourlights/mapper'
-
-import { name as packageName } from '#package.json'
-import { type AnonymizeMapperConfig, AnonymizePlugin } from '../../src'
+import { type AnonymizeMapperConfig, AnonymizePlugin } from '@fourlights/mapper-plugin-anonymize'
+import { name as packageName } from '@fourlights/mapper-plugin-anonymize/package.json'
 import { nl } from '@faker-js/faker'
 
 describe(packageName, () => {

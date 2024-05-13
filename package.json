@@ -12,7 +12,23 @@
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.mjs",
 			"require": "./dist/index.cjs"
-		}
+		},
+		"./types": {
+			"types": "./dist/lib/types.d.ts",
+			"import": "./dist/lib/types.mjs",
+			"require": "./dist/lib/types.cjs"
+		},
+		"./utils/*": {
+			"types": "./dist/lib/utils/*.d.ts",
+			"import": "./dist/lib/utils/*.mjs",
+			"require": "./dist/lib/utils/*.cjs"
+		},
+		"./methods/*": {
+			"types": "./dist/lib/methods/*.d.ts",
+			"import": "./dist/lib/methods/*.mjs",
+			"require": "./dist/lib/methods/*.cjs"
+		},
+		"./package.json": "./package.json"
 	},
 	"files": [
 		"dist",
@@ -26,8 +42,7 @@
 		"lint:fix": "oxlint --fix",
 		"format": "prettier --check .",
 		"format:fix": "prettier --write .",
-		"test": "cd tests && npm run test",
-		"test:fast": "cd tests && npm run test:fast",
+		"test": "vitest run --silent",
 		"packages:upgrade": "npx --yes npm-check-updates -u"
 	},
 	"author": "Four Lights <engineering@fourlights.nl> (https://github.com/Four-Lights-NL)",
@@ -35,10 +50,7 @@
 		"Thomas Rijpstra - Four Lights <thomas@fourlights.nl> (https://github.com/trijpstra-fourlights)"
 	],
 	"homepage": "https://github.com/Four-Lights-NL/mapper-plugin-anonymize#readme",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/Four-Lights-NL/mapper-plugin-anonymize.git"
-	},
+	"repository": "Four-Lights-NL/mapper-plugin-anonymize",
 	"bugs": {
 		"url": "https://github.com/Four-Lights-NL/mapper-plugin-anonymize/issues"
 	},
@@ -61,7 +73,6 @@
 		"@release-it/conventional-changelog": "^8.0.1",
 		"@types/jest": "^29.5.12",
 		"husky": "^9.0.11",
-		"jest": "^29.7.0",
 		"oxlint": "^0.3.3",
 		"prettier": "^3.2.5",
 		"release-it": "^17.2.1",
@@ -69,7 +80,10 @@
 		"ts-jest": "^29.1.2",
 		"ts-node": "^10.9.2",
 		"tsup": "^8.0.2",
-		"typescript": "^5.4.5"
+		"typescript": "^5.4.5",
+		"unbuild": "^2.0.0",
+		"vite-tsconfig-paths": "^4.3.2",
+		"vitest": "^1.6.0"
 	},
 	"dependencies": {
 		"@faker-js/faker": "^8.4.1",

@@ -9,11 +9,7 @@
 		"resolveJsonModule": true,
 		"allowSyntheticDefaultImports": true,
 		"forceConsistentCasingInFileNames": true,
-		"strict": true,
-		"paths": {
-			"#package.json": ["./package.json"]
-		}
+		"strict": true
 	},
-	"include": ["src/**/*", "types/**/*"],
-	"exclude": ["src/**/*.(spec|test).ts", "node_modules", "dist", "tests"]
+	"include": ["src"]
 }
