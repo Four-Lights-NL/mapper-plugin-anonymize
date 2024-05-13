@@ -1,16 +1,11 @@
 {
+	"extends": "../tsconfig.json",
 	"compilerOptions": {
-		"target": "ESNext",
-		"module": "CommonJS",
-		"outDir": "dist",
-		"esModuleInterop": true,
-		"baseUrl": ".",
-		"skipLibCheck": true,
-		"moduleResolution": "Node",
-		"resolveJsonModule": true,
-		"allowSyntheticDefaultImports": true,
-		"forceConsistentCasingInFileNames": true,
-		"strict": true
+		"paths": {
+			"@fourlights/mapper-plugin-anonymize": ["../src/index"],
+			"@fourlights/mapper-plugin-anonymize/package.json": ["../package.json"],
+			"@fourlights/mapper-plugin-anonymize/*": ["../src/lib/*"]
+		}
 	},
-	"include": ["src/**/*"]
+	"include": ["./src", "../src"]
 }

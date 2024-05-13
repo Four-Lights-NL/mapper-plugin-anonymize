@@ -1,4 +1,4 @@
-import { map, type Faker } from '@fourlights/mapper-plugin-anonymize'
+import { type Faker, map } from '@fourlights/mapper-plugin-anonymize'
 
 export function example03() {
 	const user = {
