@@ -13,12 +13,11 @@ const config: Config = {
 	testEnvironment: 'node',
 	preset: 'ts-jest/presets/js-with-ts-esm',
 	moduleNameMapper: {
-		'^#package\\.json$': '<rootDir>/package.json',
+		'^#package\\.json$': '<rootDir>/../package.json',
 	},
 	transform: {
 		'^.+\\.tsx?$': ['ts-jest', { useESM: true, ...tsJestConfig }],
 	},
-	testPathIgnorePatterns: ['<rootDir>/tests'],
 }
 
 export default config

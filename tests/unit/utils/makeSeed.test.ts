@@ -1,5 +1,5 @@
 import { name as packageName } from '#package.json'
-import { makeSeed } from './makeSeed'
+import { makeSeed } from '../../../src/lib/utils/makeSeed'
 
 describe(packageName, () => {
 	describe('utils', () => {

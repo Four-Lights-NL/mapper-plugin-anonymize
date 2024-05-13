@@ -1,8 +1,13 @@
-import { name as packageName } from '#package.json'
-import { type MapperConfigWithClassification, withClassification } from './withClassification'
 import { map, type MapperConfig } from '@fourlights/mapper'
-import type { DataTaxonomy } from '../types'
-import { AnonymizePlugin } from '../anonymize'
+import type { Faker } from '@faker-js/faker'
+
+import { name as packageName } from '#package.json'
+import {
+	AnonymizePlugin,
+	type MapperConfigWithClassification,
+	withClassification,
+} from '../../../src'
+import type { DataTaxonomy } from '../../../src/lib/types'
 
 describe(packageName, () => {
 	describe('utils', () => {
@@ -19,6 +24,21 @@ describe(packageName, () => {
 				expect(
 					map(input, withClassification(config), {
 						plugins: [new AnonymizePlugin({ piiData: 'redact' })],
+					}),
+				).toEqual(expected)
+			})
+
+			it('should handle custom value functions', () => {
+				const input = { a: 'hello', b: 'world!' }
+				const config: MapperConfigWithClassification<typeof input> = {
+					a: [(d) => d.a, 'pii', (faker: Faker) => faker.person.prefix()],
+					b: (d) => d.b,
+				}
+
+				const expected = { a: 'Miss', b: 'world!' }
+				expect(
+					map(input, withClassification(config), {
+						plugins: [new AnonymizePlugin({ seed: 1 })],
 					}),
 				).toEqual(expected)
 			})

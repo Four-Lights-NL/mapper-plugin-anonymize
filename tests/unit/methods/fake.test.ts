@@ -1,5 +1,5 @@
 import { name as packageName } from '#package.json'
-import { Fake } from './fake'
+import { Fake } from '../../../src/lib/methods/fake'
 
 describe(packageName, () => {
 	describe('Fake', () => {
@@ -9,12 +9,11 @@ describe(packageName, () => {
 		})
 
 		const props = {
-			prefix: () => 'Mr.',
-			firstName: () => 'John',
-			lastName: () => 'Doe',
-			email: {
-				value: () => 'exposed@example.com',
-			},
+			prefix: { value: () => 'Mr.' },
+			firstName: { value: () => 'John' },
+			lastName: { value: () => 'Doe' },
+			email: { value: () => 'exposed@example.com' },
+			birthdate: { value: () => new Date(1990, 1, 1) },
 		}
 
 		it('should not be deterministic', () => {
@@ -24,6 +23,11 @@ describe(packageName, () => {
 
 			expect(email1).not.toBe(email2)
 			expect(email2).not.toBe(email3)
+		})
+
+		it('should generate a fake birthdate', () => {
+			const birthdate = fake.generate('birthdate', props.birthdate)({})
+			expect(birthdate).not.toBe(new Date(1990, 1, 1))
 		})
 
 		it('should generate a fake email', () => {

@@ -1,8 +1,12 @@
-import { name as packageName } from '#package.json'
-import { type MapperConfigWithClassification, withClassification } from './withClassification'
 import * as mapper from '@fourlights/mapper'
-import { AnonymizePlugin } from '../anonymize'
-import { map } from './map'
+
+import { name as packageName } from '#package.json'
+import {
+	AnonymizePlugin,
+	map,
+	type MapperConfigWithClassification,
+	withClassification,
+} from '../../../src'
 
 describe(packageName, () => {
 	describe('utils', () => {
