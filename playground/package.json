@@ -1,6 +1,7 @@
 {
 	"name": "playground",
 	"description": "Playground for @fourlights/mapper-plugin-anonymize",
+  "private": true,
 	"main": "dist/index.js",
 	"scripts": {
 		"prestart": "cd ../ && npm install && npm run build && cd -",

@@ -1,16 +1,25 @@
 import { en, Faker } from '@faker-js/faker'
+import uFuzzy from '@leeoniya/ufuzzy'
+
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
+import { isPlainObject } from '@fourlights/mapper/utils'
+
 import type { AnonymizeMethodFactory, AnonymizePropertyOptions } from '../types'
 import { getMethodOptions } from '../utils/getMethodOptions'
 import { makeSeed } from '../utils/makeSeed'
 import { unwrapValue } from '../utils/unwrapValue'
 import { getMethods } from '../utils/getMethods'
-import uFuzzy from '@leeoniya/ufuzzy'
 
+export type FakeValueFn<TData> = (
+	faker: Faker,
+	data: TData,
+	outerKey?: string,
+	innerKey?: string | number,
+) => any
 export type FakeMethodOptions<TData> = {
 	seed?: number | string
 	key?: string
-	value?: (faker: Faker, data: TData, outerKey?: string, innerKey?: string | number) => any
+	value?: FakeValueFn<TData>
 	traverse?: boolean
 }
 
@@ -56,7 +65,7 @@ export class Fake<TData>
 		const email = this.faker.internet.email({ firstName, lastName })
 
 		/* Combine all methods */
-		const fakerMethodsMap = Object.entries({
+		return Object.entries({
 			...this.fakerModuleMethodsMap('person', { firstName, lastName, fullName, sex }),
 			...this.fakerModuleMethodsMap('internet', { email }),
 			...this.fakerModuleMethodsMap('location'),
@@ -66,8 +75,6 @@ export class Fake<TData>
 			(acc, [name, method]) => acc.concat([{ name, method }]),
 			[] as { name: string; method: MapperFn<TData> }[],
 		)
-
-		return fakerMethodsMap
 	}
 
 	private shouldTraverse(
@@ -83,7 +90,7 @@ export class Fake<TData>
 	) {
 		const anonymizedProperty: MapperProperty<TData> = {
 			value: (data: TData, _wrappedKey?: string, rowId?: string | number) => {
-				if (typeof data[key as keyof TData] === 'object' && this.shouldTraverse(property))
+				if (isPlainObject(data[key as keyof TData]) && this.shouldTraverse(property))
 					return property.value(data, key, rowId)
 				return this.generate(key, property)(data, key, rowId)
 			},

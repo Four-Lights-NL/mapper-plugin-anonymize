@@ -10,9 +10,9 @@
 		"allowSyntheticDefaultImports": true,
 		"forceConsistentCasingInFileNames": true,
 		"strict": true,
-    "paths": {
-      "#package.json": ["../package.json"]
-    }
+		"paths": {
+			"#package.json": ["../package.json"]
+		}
 	},
 	"include": ["**/*", "../types/**/*"]
 }

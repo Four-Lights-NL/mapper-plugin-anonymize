@@ -1,8 +1,11 @@
+import uFuzzy from '@leeoniya/ufuzzy'
+
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
+import { isPlainObject } from '@fourlights/mapper/utils'
+
 import type { AnonymizeMethodFactory, AnonymizePropertyOptions } from '../types'
 import { getMethodOptions } from '../utils/getMethodOptions'
 import { unwrapValue } from '../utils/unwrapValue'
-import uFuzzy from '@leeoniya/ufuzzy'
 
 export type RedactMethodOptions = {
 	key?: string
@@ -42,7 +45,7 @@ export class Redact<TData>
 	) {
 		const anonymizedProperty: MapperProperty<TData> = {
 			value: (data: TData, _wrappedKey?: string, rowId?: string | number) => {
-				if (typeof data[key as keyof TData] === 'object' && this.shouldTraverse(property))
+				if (isPlainObject(data[key as keyof TData]) && this.shouldTraverse(property))
 					return property.value(data, key, rowId)
 				return this.generate(key, property)(data, key, rowId)
 			},
