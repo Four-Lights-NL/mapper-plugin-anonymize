@@ -1,5 +1,12 @@
 
 
+## [1.4.0](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.3.0...v1.4.0) (2024-05-13)
+
+
+### Features
+
+* allow specifying faker value function ([9a6f936](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/9a6f936d35aa9b206f8e5c8bf8db06311b67df68))
+
 ## [1.3.0](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.2.0...v1.3.0) (2024-04-22)
 
 
