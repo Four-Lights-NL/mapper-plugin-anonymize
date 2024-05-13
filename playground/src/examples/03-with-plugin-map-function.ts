@@ -1,4 +1,4 @@
-import { map } from '@fourlights/mapper-plugin-anonymize'
+import { map, type Faker } from '@fourlights/mapper-plugin-anonymize'
 
 export function example03() {
 	const user = {
@@ -10,10 +10,14 @@ export function example03() {
 	}
 
 	console.log(
-		map(user, {
+		map<typeof user>(user, {
 			firstName: [(d) => d.firstName, 'pii'],
 			lastName: [(d) => d.lastName, 'pii'],
-			creditCard: [(d) => d.creditCard, 'sensitive'],
+			creditCard: [
+				(d) => d.creditCard,
+				'sensitive',
+				(faker: Faker) => faker.finance.creditCardNumber(),
+			],
 			birthdate: [(d) => d.birthdate, 'pii'],
 			theme: (d) => d.theme,
 		}),

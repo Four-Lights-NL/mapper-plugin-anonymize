@@ -19,4 +19,13 @@ export function example01(seed?: number | string) {
 	})
 
 	console.log(map(user, classifiedConfig, { plugins: [new AnonymizePlugin({ seed })] }))
+
+	// We could also have done this in one go:
+	const shorterConfig = withClassification<typeof user>({
+		firstName: [(d) => d.firstName, 'pii'],
+		lastName: [(d) => d.lastName, 'pii'],
+		fullName: [(d) => `${d.firstName} ${d.lastName}`, 'pii'],
+	})
+
+	console.log(map(user, shorterConfig, { plugins: [new AnonymizePlugin({ seed })] }))
 }
