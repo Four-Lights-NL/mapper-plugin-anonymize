@@ -6,6 +6,7 @@ import type {
 } from '@fourlights/mapper'
 import type { FakeMethodOptions } from './methods/fake'
 import type { RedactMethodOptions } from './methods/redact'
+import type { LocaleDefinition } from '@faker-js/faker'
 
 export type DataTaxonomy = 'pii' | 'sensitive'
 export type AnonymizeMethods = 'fake' | 'redact' | 'none'
@@ -37,6 +38,7 @@ export type AnonymizeOptions<TData, TOptions> = {
 	piiData?: AnonymizeMethod<TData, TOptions>
 	sensitiveData?: AnonymizeMethod<TData, TOptions>
 	traverse?: boolean
+	locale?: LocaleDefinition | LocaleDefinition[]
 }
 
 export type AnonymizePropertyOptions<TData, TOptions> = MapperPropertyOptions & {

@@ -1,5 +1,6 @@
 import { name as packageName } from '#package.json'
 import { Fake } from '../../../src/lib/methods/fake'
+import { nl } from '@faker-js/faker'
 
 describe(packageName, () => {
 	describe('Fake', () => {
@@ -66,6 +67,12 @@ describe(packageName, () => {
 		it('should generate a random word for unmatched properties', () => {
 			const result = fake.generate('other-property', { value: () => '12345678' })({})
 			expect(result).toBe('enormous')
+		})
+
+		it('should use the supplied locale', () => {
+			fake = new Fake(1, [nl])
+			const result = fake.generate('street', { value: () => 'Example street' })({})
+			expect(result).toBe('Evaweg')
 		})
 	})
 })
