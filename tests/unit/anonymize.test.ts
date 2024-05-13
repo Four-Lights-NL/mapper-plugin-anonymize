@@ -2,6 +2,7 @@ import { map, type MapperConfig } from '@fourlights/mapper'
 
 import { name as packageName } from '#package.json'
 import { type AnonymizeMapperConfig, AnonymizePlugin } from '../../src'
+import { nl } from '@faker-js/faker'
 
 describe(packageName, () => {
 	it('should not anonymize properties without classification', () => {
@@ -72,5 +73,19 @@ describe(packageName, () => {
 
 		const result = map(input, config, { plugins: [plugin] })
 		expect(result.birthdate).not.toBe(input.birthdate)
+	})
+
+	it('should use supplied locale', () => {
+		const plugin = new AnonymizePlugin({ seed: 1, piiData: 'fake', locale: [nl] })
+		const input = { email: 'exposed@example.com' }
+		const expected = { email: 'Mila.Vink9@hotmail.com' }
+		const config = {
+			email: {
+				value: (d) => d.email,
+				options: { classification: 'pii' },
+			},
+		} as AnonymizeMapperConfig<typeof input>
+
+		expect(map(input, config, { plugins: [plugin] })).toEqual(expected)
 	})
 })
