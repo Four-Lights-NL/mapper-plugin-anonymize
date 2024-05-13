@@ -1,13 +1,13 @@
 import { map, type MapperConfig } from '@fourlights/mapper'
 import type { Faker } from '@faker-js/faker'
 
-import { name as packageName } from '#package.json'
+import { name as packageName } from '@fourlights/mapper-plugin-anonymize/package.json'
 import {
 	AnonymizePlugin,
 	type MapperConfigWithClassification,
 	withClassification,
-} from '../../../src'
-import type { DataTaxonomy } from '../../../src/lib/types'
+} from '@fourlights/mapper-plugin-anonymize'
+import type { DataTaxonomy } from '@fourlights/mapper-plugin-anonymize/types'
 
 describe(packageName, () => {
 	describe('utils', () => {

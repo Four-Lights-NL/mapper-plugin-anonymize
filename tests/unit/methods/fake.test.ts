@@ -1,5 +1,5 @@
-import { name as packageName } from '#package.json'
-import { Fake } from '../../../src/lib/methods/fake'
+import { name as packageName } from '@fourlights/mapper-plugin-anonymize/package.json'
+import { Fake } from '@fourlights/mapper-plugin-anonymize/methods/fake'
 import { nl } from '@faker-js/faker'
 
 describe(packageName, () => {

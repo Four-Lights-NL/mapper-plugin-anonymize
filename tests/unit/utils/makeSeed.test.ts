@@ -1,5 +1,5 @@
-import { name as packageName } from '#package.json'
-import { makeSeed } from '../../../src/lib/utils/makeSeed'
+import { name as packageName } from '@fourlights/mapper-plugin-anonymize/package.json'
+import { makeSeed } from '@fourlights/mapper-plugin-anonymize/utils/makeSeed'
 
 describe(packageName, () => {
 	describe('utils', () => {

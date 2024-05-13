@@ -132,9 +132,3 @@ dist
 
 # jetbrains
 .idea
-
-# playground
-playground/package-lock.json
-
-# tests
-tests/package-lock.json

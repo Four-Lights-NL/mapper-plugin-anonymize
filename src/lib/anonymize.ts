@@ -99,8 +99,8 @@ export class AnonymizePlugin implements MapperPlugin {
 
 		// Anonymize using fake
 		if (toAnonymize.fake) {
-			const { seed, traverse } = this._options
-			const fake = new Fake<TData>(seed)
+			const { seed, locale, traverse } = this._options
+			const fake = new Fake<TData>(seed, locale)
 
 			for (const [key, property] of Object.entries(toAnonymize.fake)) {
 				anonymizedConfig[key] = {

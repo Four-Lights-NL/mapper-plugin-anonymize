@@ -1,7 +1,6 @@
 import { type MapperProperty } from '@fourlights/mapper'
-
-import { name as packageName } from '#package.json'
-import { Redact } from '../../../src/lib/methods/redact'
+import { name as packageName } from '@fourlights/mapper-plugin-anonymize/package.json'
+import { Redact } from '@fourlights/mapper-plugin-anonymize/methods/redact'
 
 describe(packageName, () => {
 	describe('Redact', () => {
