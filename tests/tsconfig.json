@@ -1,12 +1,12 @@
 {
-	"extends": "../tsconfig.json",
-	"compilerOptions": {
-		"types": ["vitest/globals"],
-		"paths": {
-			"@fourlights/mapper-plugin-anonymize": ["../src/index"],
-			"@fourlights/mapper-plugin-anonymize/package.json": ["../package.json"],
-			"@fourlights/mapper-plugin-anonymize/*": ["../src/lib/*"]
-		}
-	},
-	"include": [".", "../src"]
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["vitest/globals"],
+    "paths": {
+      "@fourlights/mapper-plugin-anonymize": ["../src/index"],
+      "@fourlights/mapper-plugin-anonymize/package.json": ["../package.json"],
+      "@fourlights/mapper-plugin-anonymize/*": ["../src/lib/*"]
+    }
+  },
+  "include": [".", "../src"]
 }
