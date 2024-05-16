@@ -7,16 +7,16 @@ Essentially it helps to convert something like this:
 
 ```json5
 {
-	firstName: 'Jane',
-	lastName: 'Doe',
-	birthdate: '1990-05-31T22:00:00.000Z',
-	theme: 'blue',
-	creditCard: {
-		number: '6271701225979642',
-		issuer: 'Cabal',
-		expiryDate: '03/2026',
-		countryCode: 'AR',
-	},
+  firstName: 'Jane',
+  lastName: 'Doe',
+  birthdate: '1990-05-31T22:00:00.000Z',
+  theme: 'blue',
+  creditCard: {
+    number: '6271701225979642',
+    issuer: 'Cabal',
+    expiryDate: '03/2026',
+    countryCode: 'AR',
+  },
 }
 ```
 
@@ -24,17 +24,17 @@ to this:
 
 ```json5
 {
-	firstName: 'Patty', // replaced by fake name
-	lastName: 'Blanda', // replaced by fake name
-	birthdate: '1988-03-11T17:04:00.000Z', // replaced by fake date
-	theme: 'blue', // kept intact
-	creditCard: {
-		// obscured
-		number: '****************',
-		issuer: '*****',
-		expiryDate: '**/****',
-		countryCode: '**',
-	},
+  firstName: 'Patty', // replaced by fake name
+  lastName: 'Blanda', // replaced by fake name
+  birthdate: '1988-03-11T17:04:00.000Z', // replaced by fake date
+  theme: 'blue', // kept intact
+  creditCard: {
+    // redacted
+    number: '****************',
+    issuer: '*****',
+    expiryDate: '**/****',
+    countryCode: '**',
+  },
 }
 ```
 
@@ -44,26 +44,26 @@ In code, the above example is:
 import { map } from '@fourlights/mapper-plugin-anonymize'
 
 const input = {
-	firstName: 'Jane',
-	lastName: 'Doe',
-	birthdate: new Date(1990, 5, 1),
-	theme: 'blue',
-	creditCard: {
-		number: '6271701225979642',
-		issuer: 'Cabal',
-		expiryDate: '03/2026',
-		countryCode: 'AR',
-	},
+  firstName: 'Jane',
+  lastName: 'Doe',
+  birthdate: new Date(1990, 5, 1),
+  theme: 'blue',
+  creditCard: {
+    number: '6271701225979642',
+    issuer: 'Cabal',
+    expiryDate: '03/2026',
+    countryCode: 'AR',
+  },
 }
 
 console.log(
-	map(user, {
-		firstName: [(d) => d.firstName, 'pii'],
-		lastName: [(d) => d.lastName, 'pii'],
-		creditCard: [(d) => d.creditCard, 'sensitive'],
-		birthdate: [(d) => d.birthdate, 'pii'],
-		theme: (d) => d.theme,
-	}),
+  map(user, {
+    firstName: [(d) => d.firstName, 'pii'],
+    lastName: [(d) => d.lastName, 'pii'],
+    creditCard: [(d) => d.creditCard, 'sensitive'],
+    birthdate: [(d) => d.birthdate, 'pii'],
+    theme: (d) => d.theme,
+  }),
 )
 ```
 
@@ -82,20 +82,20 @@ npm install @fourlights/mapper-plugin-anonymize
 import { map } from '@fourlights/mapper-plugin-anonymize'
 
 const user = {
-	firstName: 'John',
-	lastName: 'Doe',
-	birthdate: new Date(1990, 1, 1),
-	creditCard: '12357689',
-	theme: 'blue',
+  firstName: 'John',
+  lastName: 'Doe',
+  birthdate: new Date(1990, 1, 1),
+  creditCard: '12357689',
+  theme: 'blue',
 }
 console.log(
-	map(user, {
-		firstName: [(d) => d.firstName, 'pii'],
-		lastName: [(d) => d.lastName, 'pii'],
-		creditCard: [(d) => d.creditCard, 'sensitive'],
-		birthdate: [(d) => d.birthdate, 'pii'],
-		theme: (d) => d.theme,
-	}),
+  map(user, {
+    firstName: [(d) => d.firstName, 'pii'],
+    lastName: [(d) => d.lastName, 'pii'],
+    creditCard: [(d) => d.creditCard, 'sensitive'],
+    birthdate: [(d) => d.birthdate, 'pii'],
+    theme: (d) => d.theme,
+  }),
 )
 ```
 
@@ -103,11 +103,11 @@ outputs
 
 ```json5
 {
-	firstName: 'Patty',
-	lastName: 'Blanda',
-	creditCard: '********',
-	birthDate: 'Date(1999, 5, 11)',
-	theme: 'blue',
+  firstName: 'Patty',
+  lastName: 'Blanda',
+  creditCard: '********',
+  birthDate: 'Date(1999, 5, 11)',
+  theme: 'blue',
 }
 ```
 
@@ -117,17 +117,17 @@ By default, the plugin will fake `PII` data and redact `sensitive` data. But eve
 ```typescript
 import { map, type MapperConfig } from '@fourlights/mapper'
 import {
-	AnonymizePlugin,
-	type AnonymizePluginPropertyOptions,
+  AnonymizePlugin,
+  type AnonymizePluginPropertyOptions,
 } from '@fourlights/mapper-plugin-anonymize'
 
 const user = { firstName: 'John', lastName: 'Doe', birthdate: new Date(1990, 1, 1) }
 const config: MapperConfig<typeof user, AnonymizePluginPropertyOptions> = {
-	firstName: { value: (data) => data.firstName, options: { classification: 'pii' } },
-	lastName: {
-		value: (data) => data.lastName,
-		options: { classification: 'pii', anonymize: 'redact' },
-	},
+  firstName: { value: (data) => data.firstName, options: { classification: 'pii' } },
+  lastName: {
+    value: (data) => data.lastName,
+    options: { classification: 'pii', anonymize: 'redact' },
+  },
 }
 
 console.log(map(user, config, { plugins: [new AnonymizePlugin({ seed: 69 })] })) // NOTE: The seed to get deterministic results, for example purposes
@@ -137,8 +137,8 @@ This will output:
 
 ```json5
 {
-	firstName: 'Vicki',
-	lastName: '*****',
+  firstName: 'Vicki',
+  lastName: '*****',
 }
 ```
 
@@ -155,25 +155,25 @@ Note that `piiData` and `sensitiveData` also accept an object to override the bu
 
 ```typescript
 const config = {
-	firstName: {
-		value: (data) => data.firstName,
-		options: {
-			classification: 'pii',
-			// Use a built-in method
-			anonymize: 'fake', // 'redact' | 'none'
-		},
-	},
-	lastName: {
-		value: (data) => data.lastName,
-		options: {
-			classification: 'pii',
-			/* You can use an object to override the built-in method configuration */
-			anonymize: {
-				method: 'redact',
-				options: { redactValue: 'X' }, // e.g. 'XXXXXX' instead of '******'
-			},
-		},
-	},
+  firstName: {
+    value: (data) => data.firstName,
+    options: {
+      classification: 'pii',
+      // Use a built-in method
+      anonymize: 'fake', // 'redact' | 'none'
+    },
+  },
+  lastName: {
+    value: (data) => data.lastName,
+    options: {
+      classification: 'pii',
+      /* You can use an object to override the built-in method configuration */
+      anonymize: {
+        method: 'redact',
+        options: { redactValue: 'X' }, // e.g. 'XXXXXX' instead of '******'
+      },
+    },
+  },
 }
 ```
 
@@ -184,23 +184,23 @@ You can use the `withClassification` method to easily add (sparse) classificatio
 ```typescript
 import { map } from '@fourlights/mapper'
 import {
-	AnonymizePlugin,
-	withClassification,
-	type MapperConfigWithClassification,
+  AnonymizePlugin,
+  withClassification,
+  type MapperConfigWithClassification,
 } from '@fourlights/mapper-plugin-anonymize'
 
 const user = {} // see example above
 const config = {
-	name: [(d) => d.name, 'pii'], // inline data classification
-	birthdate: (d) => d.birthdate,
-	theme: (d) => d.theme,
+  name: [(d) => d.name, 'pii'], // inline data classification
+  birthdate: (d) => d.birthdate,
+  theme: (d) => d.theme,
 } as MapperConfigWithClassification<typeof user>
 
 map(user, withClassification(config), { plugins: [new AnonymizePlugin()] })
 
 // or, when providing additional properties
 map(user, withClassification(config, { birthdate: 'sensitive' }), {
-	plugins: [new AnonymizePlugin()],
+  plugins: [new AnonymizePlugin()],
 })
 ```
 
@@ -221,7 +221,7 @@ import { map } from '@fourlights/mapper'
 import { AnonymizePlugin, withClassification } from '@fourlights/mapper-plugin-anonymize'
 
 map(user, withClassification({ name: [(d) => d.name, 'pii'], birthdate: (d) => d.birthdate }), {
-	plugins: [new AnonymizePlugin()],
+  plugins: [new AnonymizePlugin()],
 })
 ```
 
