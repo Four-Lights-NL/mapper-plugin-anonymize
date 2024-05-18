@@ -10,6 +10,6 @@
 		"date-fns": "^3.6.0"
 	},
 	"devDependencies": {
-		"tsx": "^4.10.3"
+		"tsx": "^4.10.5"
 	}
 }
