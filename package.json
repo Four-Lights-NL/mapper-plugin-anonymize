@@ -72,7 +72,7 @@
 		"@fourlights/mapper": "^1.4.0",
 		"@release-it/conventional-changelog": "^8.0.1",
 		"husky": "^9.0.11",
-		"oxlint": "^0.3.5",
+		"oxlint": "^0.4.1",
 		"prettier": "^3.2.5",
 		"release-it": "^17.3.0",
 		"simple-git": "^3.24.0",
