@@ -1,5 +1,12 @@
 
 
+## [1.5.0](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.4.2...v1.5.0) (2024-06-03)
+
+
+### Features
+
+* allow control over redact function ([7d47ec0](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/commit/7d47ec06845e2a5f68e333391c3292d2661069a1))
+
 ## [1.4.2](https://github.com/Four-Lights-NL/mapper-plugin-anonymize/compare/v1.4.1...v1.4.2) (2024-05-13)
 
 

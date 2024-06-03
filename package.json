@@ -1,6 +1,6 @@
 {
 	"name": "@fourlights/mapper-plugin-anonymize",
-	"version": "1.4.2",
+	"version": "1.5.0",
 	"description": "Fuzzy anonymization plugin for @fourlights/mapper",
 	"packageManager": "npm@10.8.1",
 	"type": "module",
