@@ -31,5 +31,21 @@ describe(packageName, () => {
       const email = redact.generate('email', property)({})
       expect(email).toBe('XXXXX@XXXXX.com')
     })
+
+    it('should use the provided value function if it exists', () => {
+      const result = new Redact().generate('using-redact-valuefn', {
+        value: () => 'some value',
+        options: {
+          anonymize: {
+            method: 'redact',
+            options: {
+              value: () => 'abcdef',
+            },
+          },
+        },
+      })({})
+
+      expect(result).toBe('abcdef')
+    })
   })
 })

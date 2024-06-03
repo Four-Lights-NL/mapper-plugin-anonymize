@@ -1,20 +1,27 @@
 import uFuzzy from '@leeoniya/ufuzzy'
 
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
-import { isPlainObject } from '@fourlights/mapper/utils'
 
 import type { AnonymizeMethodFactory, AnonymizePropertyOptions } from '../types'
 import { getMethodOptions } from '../utils/getMethodOptions'
 import { unwrapValue } from '../utils/unwrapValue'
 
-export type RedactMethodOptions = {
+export type RedactValueFn<TData> = (
+  redact: MapperFn<TData>,
+  data: TData,
+  outerKey?: string,
+  innerKey?: string | number,
+) => any
+export type RedactMethodOptions<TData> = {
   key?: string
   replaceValue?: string
+  value?: RedactValueFn<TData>
   traverse?: boolean
 }
 
 export class Redact<TData>
-  implements AnonymizeMethodFactory<TData, AnonymizePropertyOptions<TData, RedactMethodOptions>>
+  implements
+    AnonymizeMethodFactory<TData, AnonymizePropertyOptions<TData, RedactMethodOptions<TData>>>
 {
   private readonly redactMethods: {
     name: string
@@ -32,50 +39,25 @@ export class Redact<TData>
     ]
   }
 
-  private shouldTraverse(
-    property: MapperProperty<TData, AnonymizePropertyOptions<TData, RedactMethodOptions>>,
-  ) {
-    const options = getMethodOptions(property)
-    return options?.traverse ?? true
-  }
-
-  anonymize(
-    key: string,
-    property: MapperProperty<TData, AnonymizePropertyOptions<TData, RedactMethodOptions>>,
-  ) {
-    const anonymizedProperty: MapperProperty<TData> = {
-      value: (data: TData, _wrappedKey?: string, rowId?: string | number) => {
-        if (isPlainObject(data[key as keyof TData]) && this.shouldTraverse(property))
-          return property.value(data, key, rowId)
-        return this.generate(key, property)(data, key, rowId)
-      },
-    }
-
-    return this.shouldTraverse(property)
-      ? ({
-          ...anonymizedProperty,
-          apply: (row, parentKey, rowId) => {
-            const innerKey = `${rowId!}`.substring(parentKey ? parentKey.length + 1 : 0)
-            return this.generate(innerKey, property)(row, parentKey, rowId)
-          },
-        } as MapperProperty<TData>)
-      : anonymizedProperty
-  }
-
   generate(
     key: string,
-    property: MapperProperty<TData, AnonymizePropertyOptions<TData, RedactMethodOptions>>,
+    property: MapperProperty<TData, AnonymizePropertyOptions<TData, RedactMethodOptions<TData>>>,
   ) {
     const options = getMethodOptions(property)
 
     const replaceValue = options?.replaceValue || '*'
+    const replaceFn = (d: TData, outerKey?: string, innerKey?: string | number) =>
+      `${unwrapValue(property, d, innerKey)}`.replaceAll(/\w/g, replaceValue)
+
+    if (options?.value)
+      return (data: TData, outerKey?: string, innerKey?: string | number) =>
+        options.value!(replaceFn, data, outerKey, innerKey)
+
     const [idxs, info, order] = new uFuzzy().search(
       this.redactMethods.map((m) => m.name),
       key,
     )
-    if (key.length < this.minMatchKeyLength || idxs?.length === 0)
-      return (d: TData, _wrappedKey?: string, rowId?: string | number) =>
-        `${unwrapValue(property, d, rowId)}`.replaceAll(/\w/g, replaceValue)
+    if (key.length < this.minMatchKeyLength || idxs?.length === 0) return replaceFn
     return (d: TData) => this.redactMethods[info!.idx[order![0]]].methodFactory(replaceValue)(d)
   }
 }

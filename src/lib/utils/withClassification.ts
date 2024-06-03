@@ -3,7 +3,12 @@ import defu from 'defu'
 import type { MapperConfig, MapperFn, MapperProperty } from '@fourlights/mapper'
 import { utils } from '@fourlights/mapper'
 
-import type { AnonymizeMapperConfig, AnonymizePropertyOptions, DataTaxonomy } from '../types'
+import type {
+  AnonymizeMapperConfig,
+  AnonymizePropertyOptions,
+  DataClassifications,
+  DataTaxonomy,
+} from '../types'
 import type { FakeMethodOptions, FakeValueFn } from '../methods/fake'
 import { isType } from './isType'
 
@@ -16,7 +21,7 @@ type AnonymizeMapperPropertyWithClassification<TData, TOptions> =
   | [AnonymizeMapperProperty<TData, TOptions>, DataTaxonomy | undefined]
   | [
       AnonymizeMapperProperty<TData, TOptions>,
-      DataTaxonomy | undefined,
+      DataTaxonomy | DataClassifications | undefined,
       FakeValueFn<TData> | MapperFn<TData> | undefined,
     ]
 
@@ -31,7 +36,7 @@ export function withClassification<TData, TOptions = {}>(
     | MapperConfig<TData>
     | AnonymizeMapperConfig<TData, TOptions>
     | MapperConfigWithClassification<TData, TOptions>,
-  classifications: Record<string, DataTaxonomy> = {},
+  classifications: DataClassifications = {},
 ) {
   const newConfig: MapperConfig<TData, AnonymizePropertyOptions<TData, TOptions>> = {}
 

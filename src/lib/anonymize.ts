@@ -1,20 +1,29 @@
+import defu from 'defu'
+import dlv from 'dlv'
+
 import type { MapperConfig, MapperPlugin, MapperProperty } from '@fourlights/mapper'
+import { isPlainObject } from '@fourlights/mapper/utils'
+
 import type {
   AnonymizeMethod,
+  AnonymizeMethodFactory,
   AnonymizeMethodOptions,
   AnonymizeMethods,
   AnonymizeOptions,
-  AnonymizePropertyFn,
   AnonymizePropertyOptions,
+  DataClassifications,
+  DataTaxonomy,
 } from './types'
-import defu from 'defu'
-import { Fake, FakeMethodOptions } from './methods/fake'
-import { Redact, RedactMethodOptions } from './methods/redact'
+import { Fake } from './methods/fake'
+import { Redact } from './methods/redact'
+import { getMethodOptions } from './utils/getMethodOptions'
+import { isType } from './utils/isType'
 
 export class AnonymizePlugin implements MapperPlugin {
   private readonly _options: AnonymizeOptions<unknown, unknown> = {
     piiData: 'fake',
     sensitiveData: 'redact',
+    publicData: 'none',
     seed: undefined,
     traverse: true,
   }
@@ -31,27 +40,67 @@ export class AnonymizePlugin implements MapperPlugin {
     return {
       pii: this.unwrap(this._options['piiData']!),
       sensitive: this.unwrap(this._options['sensitiveData']!),
+      public: this.unwrap(this._options['publicData']!),
     }
   }
 
-  private isFunction<TData, TOptions>(options: AnonymizePropertyOptions<TData, TOptions>) {
+  private getTaxonomy<TData, TOptions>(
+    options: AnonymizePropertyOptions<TData, TOptions>,
+    innerKey?: string,
+  ) {
+    if (typeof options.classification === 'string') return options.classification as DataTaxonomy
+
+    const [defaultTaxonomy, dataClassifications] = Array.isArray(options.classification)
+      ? options.classification
+      : ['public' as DataTaxonomy, options.classification]
+
+    if (isType<DataClassifications>(dataClassifications) && innerKey !== undefined)
+      return (dlv(dataClassifications, innerKey) as DataTaxonomy) ?? defaultTaxonomy
+    return defaultTaxonomy
+  }
+
+  private isFunction<TData, TOptions>(
+    options: AnonymizePropertyOptions<TData, TOptions>,
+    innerKey?: string,
+  ) {
     return (
       typeof options.anonymize === 'function' ||
       (options.anonymize === undefined &&
-        typeof this.fallbackAnonymization[options.classification!] === 'function')
+        typeof this.fallbackAnonymization[this.getTaxonomy(options, innerKey)] === 'function')
     )
   }
 
   private isMethod<TData, TOptions>(
     options: AnonymizePropertyOptions<TData, TOptions>,
     method: AnonymizeMethods,
+    innerKey?: string,
   ) {
     const matchesMethod =
       options.anonymize !== undefined && this.unwrap(options.anonymize!) === method
     const useFallbackMethod =
       options.anonymize === undefined &&
-      this.fallbackAnonymization[options.classification!] === method
+      this.fallbackAnonymization[this.getTaxonomy(options, innerKey)] === method
     return matchesMethod || useFallbackMethod
+  }
+
+  private shouldTraverse<TData, TOptions extends { traverse: boolean }>(
+    property: MapperProperty<TData, AnonymizePropertyOptions<TData, TOptions>>,
+  ) {
+    const options = getMethodOptions(property)
+    return options?.traverse ?? true
+  }
+
+  private resolveGenerator<TData, TOptions>(
+    generators: Record<
+      string,
+      AnonymizeMethodFactory<TData, AnonymizePropertyOptions<TData, TOptions>>
+    >,
+    property: MapperProperty<TData, AnonymizePropertyOptions<TData, TOptions>>,
+    innerKey?: string,
+  ) {
+    if (this.isMethod(property.options!, 'redact', innerKey)) return generators.redact
+    else if (this.isMethod(property.options!, 'fake', innerKey)) return generators.fake
+    else if (this.isFunction(property.options!, innerKey)) return { generate: () => () => property } // TODO
   }
 
   config<TData, TOptions extends Record<string, any>>(
@@ -59,80 +108,50 @@ export class AnonymizePlugin implements MapperPlugin {
   ): MapperConfig<TData> {
     const anonymizedConfig: typeof config = {} // Holds the mapper configuration with anonymized properties
 
+    const generators = {
+      redact: new Redact<TData>(),
+      fake: new Fake<TData>(this._options.seed, this._options.locale),
+    }
+
     // Find all properties with a data classification
-    const toAnonymize = Object.keys(config)
-      .filter((key) => {
-        const property = config[key]
-        if (!property || typeof property === 'function' || !property.options) return false // Only handle long-form properties
-        return !!property.options.classification || !!property.options.anonymize
-      })
-      .reduce(
-        (acc, key) => {
-          const property = config[key] as MapperProperty<
-            TData,
-            AnonymizePropertyOptions<TData, TOptions>
-          >
-          if (this.isMethod(property.options!, 'redact')) acc.redact[key] = property
-          else if (this.isMethod(property.options!, 'fake')) acc.fake[key] = property
-          else if (this.isFunction(property.options!)) acc.custom[key] = property
-          return acc
+    const toAnonymize = Object.keys(config).filter((key) => {
+      const property = config[key]
+      if (!property || typeof property === 'function' || !property.options) return false // Only handle long-form properties
+      return !!property.options.classification || !!property.options.anonymize
+    })
+
+    // Apply anonymization
+    for (let i = 0; i != toAnonymize.length; ++i) {
+      const key = toAnonymize[i]
+      const property = config[key] as MapperProperty<
+        TData,
+        AnonymizePropertyOptions<TData, TOptions>
+      >
+      const anonymizedProperty: MapperProperty<TData> = {
+        value: (data: TData, _wrappedKey?: string, rowId?: string | number) => {
+          if (this.shouldTraverse(property)) {
+            const value = property.value(data, key, rowId)
+            if (isPlainObject(value)) return value
+          }
+
+          const generator = this.resolveGenerator(generators, property)
+          return generator?.generate(key, property)(data, key, rowId)
         },
-        { redact: {}, fake: {}, custom: {} } as Record<
-          'redact' | 'fake' | 'custom',
-          Record<string, MapperProperty<TData, AnonymizePropertyOptions<TData, TOptions>>>
-        >,
-      )
-
-    // Anonymize using redact
-    if (toAnonymize.redact) {
-      const redact = new Redact<TData>()
-      for (const [key, property] of Object.entries(toAnonymize.redact)) {
-        anonymizedConfig[key] = {
-          ...property,
-          ...redact.anonymize(
-            key,
-            property as MapperProperty<TData, AnonymizePropertyOptions<TData, RedactMethodOptions>>,
-          ),
-        }
       }
-    }
-
-    // Anonymize using fake
-    if (toAnonymize.fake) {
-      const { seed, locale, traverse } = this._options
-      const fake = new Fake<TData>(seed, locale)
-
-      for (const [key, property] of Object.entries(toAnonymize.fake)) {
-        anonymizedConfig[key] = {
-          ...property,
-          ...fake.anonymize(
-            key,
-            property as MapperProperty<
-              TData,
-              AnonymizePropertyOptions<TData, FakeMethodOptions<TData>>
-            >,
-          ),
-        }
-      }
-    }
-
-    // Anonymize using custom function
-    if (toAnonymize.custom) {
-      for (const [key, property] of Object.entries(toAnonymize.custom)) {
-        const anonymize =
-          typeof property.options!.anonymize === 'function'
-            ? property.options!.anonymize
-            : (this.fallbackAnonymization[property.options!.classification!] as AnonymizePropertyFn<
-                TData,
-                Record<string, any>
-              >)
-        anonymizedConfig[key] = {
-          ...property,
-          ...anonymize(
-            key,
-            property as MapperProperty<Record<string, any>> & MapperProperty<TData>,
-          ),
-        }
+      anonymizedConfig[key] = {
+        ...property,
+        ...(this.shouldTraverse(property)
+          ? ({
+              ...anonymizedProperty,
+              apply: (rowValue, parentKey, rowId) => {
+                const innerKey = `${rowId!}`.substring(parentKey ? parentKey.length + 1 : 0)
+                const generator = this.resolveGenerator(generators, property, innerKey)
+                return (
+                  generator?.generate(innerKey, property)(rowValue, parentKey, rowId) ?? rowValue
+                )
+              },
+            } as MapperProperty<TData>)
+          : anonymizedProperty),
       }
     }
 

@@ -2,7 +2,6 @@ import { en, Faker, type LocaleDefinition } from '@faker-js/faker'
 import uFuzzy from '@leeoniya/ufuzzy'
 
 import type { MapperFn, MapperProperty } from '@fourlights/mapper'
-import { isPlainObject } from '@fourlights/mapper/utils'
 
 import type { AnonymizeMethodFactory, AnonymizePropertyOptions } from '../types'
 import { getMethodOptions } from '../utils/getMethodOptions'
@@ -76,36 +75,6 @@ export class Fake<TData>
       (acc, [name, method]) => acc.concat([{ name, method }]),
       [] as { name: string; method: MapperFn<TData> }[],
     )
-  }
-
-  private shouldTraverse(
-    property: MapperProperty<TData, AnonymizePropertyOptions<TData, FakeMethodOptions<TData>>>,
-  ) {
-    const options = getMethodOptions(property)
-    return options?.traverse ?? true
-  }
-
-  anonymize(
-    key: string,
-    property: MapperProperty<TData, AnonymizePropertyOptions<TData, FakeMethodOptions<TData>>>,
-  ) {
-    const anonymizedProperty: MapperProperty<TData> = {
-      value: (data: TData, _wrappedKey?: string, rowId?: string | number) => {
-        if (isPlainObject(data[key as keyof TData]) && this.shouldTraverse(property))
-          return property.value(data, key, rowId)
-        return this.generate(key, property)(data, key, rowId)
-      },
-    }
-
-    return this.shouldTraverse(property)
-      ? ({
-          ...anonymizedProperty,
-          apply: (row, parentKey, rowId) => {
-            const innerKey = `${rowId!}`.substring(parentKey ? parentKey.length + 1 : 0)
-            return this.generate(innerKey, property)(row, parentKey, rowId)
-          },
-        } as MapperProperty<TData>)
-      : anonymizedProperty
   }
 
   generate(
