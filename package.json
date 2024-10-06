@@ -83,7 +83,7 @@
 		"vitest": "^1.6.0"
 	},
 	"dependencies": {
-		"@faker-js/faker": "^8.4.1",
+		"@faker-js/faker": "^9.0.3",
 		"@leeoniya/ufuzzy": "^1.0.14",
 		"defu": "^6.1.4",
 		"dlv": "^1.1.3",
